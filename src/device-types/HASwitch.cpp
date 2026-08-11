@@ -1,11 +1,13 @@
 #include "HASwitch.h"
 #ifndef EX_ARDUINOHA_SWITCH
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
 
 HASwitch::HASwitch(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentSwitch), uniqueId),
+    HABaseDeviceType(HAComponentSwitch, uniqueId),
     _class(nullptr),
     _icon(nullptr),
     _retain(false),
@@ -37,16 +39,16 @@ void HASwitch::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 11); // 11 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HADeviceClassProperty), _class);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HADeviceClassProperty, _class);
+    _serializer->set(HAIconProperty, _icon);
 
     // optional property
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -54,7 +56,7 @@ void HASwitch::buildSerializer()
 
     if (_optimistic) {
         _serializer->set(
-            AHATOFSTR(HAOptimisticProperty),
+            HAOptimisticProperty,
             &_optimistic,
             HASerializer::BoolPropertyType
         );
@@ -62,8 +64,8 @@ void HASwitch::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HAStateTopic);
+    _serializer->topic(HACommandTopic);
 }
 
 void HASwitch::onMqttConnected()
@@ -79,7 +81,7 @@ void HASwitch::onMqttConnected()
         publishState(_currentState);
     }
 
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 }
 
 void HASwitch::onMqttMessage(
@@ -93,9 +95,9 @@ void HASwitch::onMqttMessage(
     if (_commandCallback && HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
-        bool state = length == strlen_P(HAStateOn);
+        bool state = length == strlen(HAStateOn);
         _commandCallback(state, this);
     }
 }
@@ -103,8 +105,8 @@ void HASwitch::onMqttMessage(
 bool HASwitch::publishState(const bool state)
 {
     return publishOnDataTopic(
-        AHATOFSTR(HAStateTopic),
-        AHATOFSTR(state ? HAStateOn : HAStateOff),
+        HAStateTopic,
+        state ? HAStateOn : HAStateOff,
         true
     );
 }

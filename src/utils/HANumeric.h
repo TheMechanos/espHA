@@ -3,7 +3,7 @@
 #define AHA_NUMERIC_H
 
 #include <stdint.h>
-#include "../ArduinoHADefines.h"
+#include "../espHADefines.h"
 
 /**
  * This class represents a numeric value that simplifies use of different types of numbers across the library.

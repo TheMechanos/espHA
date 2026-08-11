@@ -1,11 +1,13 @@
 #include "HANumber.h"
 #ifndef EX_ARDUINOHA_NUMBER
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
 
 HANumber::HANumber(const char* uniqueId, const NumberPrecision precision) :
-    HABaseDeviceType(AHATOFSTR(HAComponentNumber), uniqueId),
+    HABaseDeviceType(HAComponentNumber, uniqueId),
     _precision(precision),
     _class(nullptr),
     _icon(nullptr),
@@ -43,26 +45,26 @@ void HANumber::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 16); // 16 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HADeviceClassProperty), _class);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
-    _serializer->set(AHATOFSTR(HAUnitOfMeasurementProperty), _unitOfMeasurement);
+    _serializer->set(HADeviceClassProperty, _class);
+    _serializer->set(HAIconProperty, _icon);
+    _serializer->set(HAUnitOfMeasurementProperty, _unitOfMeasurement);
     _serializer->set(
-        AHATOFSTR(HAModeProperty),
+        HAModeProperty,
         getModeProperty(),
         HASerializer::ProgmemPropertyValue
     );
     _serializer->set(
-        AHATOFSTR(HACommandTemplateProperty),
+        HACommandTemplateProperty,
         getCommandTemplate(),
         HASerializer::ProgmemPropertyValue
     );
 
     if (_minValue.isSet()) {
         _serializer->set(
-            AHATOFSTR(HAMinProperty),
+            HAMinProperty,
             &_minValue,
             HASerializer::NumberPropertyType
         );
@@ -70,7 +72,7 @@ void HANumber::buildSerializer()
 
     if (_maxValue.isSet()) {
         _serializer->set(
-            AHATOFSTR(HAMaxProperty),
+            HAMaxProperty,
             &_maxValue,
             HASerializer::NumberPropertyType
         );
@@ -78,7 +80,7 @@ void HANumber::buildSerializer()
 
     if (_step.isSet()) {
         _serializer->set(
-            AHATOFSTR(HAStepProperty),
+            HAStepProperty,
             &_step,
             HASerializer::NumberPropertyType
         );
@@ -86,7 +88,7 @@ void HANumber::buildSerializer()
 
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -94,7 +96,7 @@ void HANumber::buildSerializer()
 
     if (_optimistic) {
         _serializer->set(
-            AHATOFSTR(HAOptimisticProperty),
+            HAOptimisticProperty,
             &_optimistic,
             HASerializer::BoolPropertyType
         );
@@ -102,8 +104,8 @@ void HANumber::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HAStateTopic);
+    _serializer->topic(HACommandTopic);
 }
 
 void HANumber::onMqttConnected()
@@ -119,7 +121,7 @@ void HANumber::onMqttConnected()
         publishState(_currentState);
     }
 
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 }
 
 void HANumber::onMqttMessage(
@@ -131,7 +133,7 @@ void HANumber::onMqttMessage(
     if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         handleCommand(payload, length);
     }
@@ -141,8 +143,8 @@ bool HANumber::publishState(const HANumeric& state)
 {
     if (!state.isSet()) {
         return publishOnDataTopic(
-            AHATOFSTR(HAStateTopic),
-            AHATOFSTR(HAStateNone),
+            HAStateTopic,
+            HAStateNone,
             true
         );
     }
@@ -157,7 +159,7 @@ bool HANumber::publishState(const HANumeric& state)
     state.toStr(str);
 
     return publishOnDataTopic(
-        AHATOFSTR(HAStateTopic),
+        HAStateTopic,
         str,
         true
     );
@@ -169,7 +171,7 @@ void HANumber::handleCommand(const uint8_t* cmd, const uint16_t length)
         return;
     }
 
-    if (memcmp_P(cmd, HAStateNone, length) == 0) {
+    if (memcmp(cmd, HAStateNone, length) == 0) {
         _commandCallback(HANumeric(), this);
     } else {
         HANumeric number = HANumeric::fromStr(cmd, length);
@@ -180,31 +182,31 @@ void HANumber::handleCommand(const uint8_t* cmd, const uint16_t length)
     }
 }
 
-const __FlashStringHelper* HANumber::getModeProperty() const
+const char* HANumber::getModeProperty() const
 {
     switch (_mode) {
     case ModeBox:
-        return AHATOFSTR(HAModeBox);
+        return HAModeBox;
 
     case ModeSlider:
-        return AHATOFSTR(HAModeSlider);
+        return HAModeSlider;
 
     default:
         return nullptr;
     }
 }
 
-const __FlashStringHelper* HANumber::getCommandTemplate()
+const char* HANumber::getCommandTemplate()
 {
     switch (_precision) {
     case PrecisionP1:
-        return AHATOFSTR(HAValueTemplateFloatP1);
+        return HAValueTemplateFloatP1;
 
     case PrecisionP2:
-        return AHATOFSTR(HAValueTemplateFloatP2);
+        return HAValueTemplateFloatP2;
 
     case PrecisionP3:
-        return AHATOFSTR(HAValueTemplateFloatP3);
+        return HAValueTemplateFloatP3;
 
     default:
         return nullptr;

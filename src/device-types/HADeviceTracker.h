@@ -96,9 +96,9 @@ private:
     bool publishState(TrackerState state);
 
     /**
-     * Returns progmem string representing source type of the tracker.
+     * Returns string representing source type of the tracker.
      */
-    const __FlashStringHelper* getSourceTypeProperty() const;
+    const char* getSourceTypeProperty() const;
 
     /// The icon of the tracker. It can be nullptr.
     const char* _icon;

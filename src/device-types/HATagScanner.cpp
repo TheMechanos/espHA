@@ -1,11 +1,13 @@
 #include "HATagScanner.h"
 #ifndef EX_ARDUINOHA_TAG_SCANNER
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
 
 HATagScanner::HATagScanner(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentTag), uniqueId)
+    HABaseDeviceType(HAComponentTag, uniqueId)
 {
 
 }
@@ -16,7 +18,7 @@ bool HATagScanner::tagScanned(const char* tag)
         return false;
     }
 
-    return publishOnDataTopic(AHATOFSTR(HATopic), tag);
+    return publishOnDataTopic(HATopic, tag);
 }
 
 void HATagScanner::buildSerializer()
@@ -27,7 +29,7 @@ void HATagScanner::buildSerializer()
 
     _serializer = new HASerializer(this, 2); // 2 - max properties nb
     _serializer->set(HASerializer::WithDevice);
-    _serializer->topic(AHATOFSTR(HATopic));
+    _serializer->topic(HATopic);
 }
 
 void HATagScanner::onMqttConnected()

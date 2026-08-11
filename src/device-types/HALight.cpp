@@ -1,6 +1,8 @@
 #include "HALight.h"
 #ifndef EX_ARDUINOHA_LIGHT
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
 
@@ -46,7 +48,7 @@ void HALight::RGBColor::fromBuffer(const uint8_t* data, const uint16_t length)
 }
 
 HALight::HALight(const char* uniqueId, const uint8_t features) :
-    HABaseDeviceType(AHATOFSTR(HAComponentLight), uniqueId),
+    HABaseDeviceType(HAComponentLight, uniqueId),
     _features(features),
     _icon(nullptr),
     _retain(false),
@@ -129,14 +131,14 @@ void HALight::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 19); // 19 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HAIconProperty, _icon);
 
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -144,19 +146,19 @@ void HALight::buildSerializer()
 
     if (_optimistic) {
         _serializer->set(
-            AHATOFSTR(HAOptimisticProperty),
+            HAOptimisticProperty,
             &_optimistic,
             HASerializer::BoolPropertyType
         );
     }
 
     if (_features & BrightnessFeature) {
-        _serializer->topic(AHATOFSTR(HABrightnessStateTopic));
-        _serializer->topic(AHATOFSTR(HABrightnessCommandTopic));
+        _serializer->topic(HABrightnessStateTopic);
+        _serializer->topic(HABrightnessCommandTopic);
 
         if (_brightnessScale.isSet()) {
             _serializer->set(
-                AHATOFSTR(HABrightnessScaleProperty),
+                HABrightnessScaleProperty,
                 &_brightnessScale,
                 HASerializer::NumberPropertyType
             );
@@ -164,12 +166,12 @@ void HALight::buildSerializer()
     }
 
     if (_features & ColorTemperatureFeature) {
-        _serializer->topic(AHATOFSTR(HAColorTemperatureStateTopic));
-        _serializer->topic(AHATOFSTR(HAColorTemperatureCommandTopic));
+        _serializer->topic(HAColorTemperatureStateTopic);
+        _serializer->topic(HAColorTemperatureCommandTopic);
 
         if (_minMireds.isSet()) {
             _serializer->set(
-                AHATOFSTR(HAMinMiredsProperty),
+                HAMinMiredsProperty,
                 &_minMireds,
                 HASerializer::NumberPropertyType
             );
@@ -177,7 +179,7 @@ void HALight::buildSerializer()
 
         if (_maxMireds.isSet()) {
             _serializer->set(
-                AHATOFSTR(HAMaxMiredsProperty),
+                HAMaxMiredsProperty,
                 &_maxMireds,
                 HASerializer::NumberPropertyType
             );
@@ -185,14 +187,14 @@ void HALight::buildSerializer()
     }
 
     if (_features & RGBFeature) {
-        _serializer->topic(AHATOFSTR(HARGBCommandTopic));
-        _serializer->topic(AHATOFSTR(HARGBStateTopic));
+        _serializer->topic(HARGBCommandTopic);
+        _serializer->topic(HARGBStateTopic);
     }
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HAStateTopic);
+    _serializer->topic(HACommandTopic);
 }
 
 void HALight::onMqttConnected()
@@ -211,18 +213,18 @@ void HALight::onMqttConnected()
         publishRGBColor(_currentRGBColor);
     }
 
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 
     if (_features & BrightnessFeature) {
-        subscribeTopic(uniqueId(), AHATOFSTR(HABrightnessCommandTopic));
+        subscribeTopic(uniqueId(), HABrightnessCommandTopic);
     }
 
     if (_features & ColorTemperatureFeature) {
-        subscribeTopic(uniqueId(), AHATOFSTR(HAColorTemperatureCommandTopic));
+        subscribeTopic(uniqueId(), HAColorTemperatureCommandTopic);
     }
 
     if (_features & RGBFeature) {
-        subscribeTopic(uniqueId(), AHATOFSTR(HARGBCommandTopic));
+        subscribeTopic(uniqueId(), HARGBCommandTopic);
     }
 }
 
@@ -235,26 +237,26 @@ void HALight::onMqttMessage(
     if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         handleStateCommand(payload, length);
     } else if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HABrightnessCommandTopic)
+        HABrightnessCommandTopic
     )) {
         handleBrightnessCommand(payload, length);
     } else if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HAColorTemperatureCommandTopic)
+        HAColorTemperatureCommandTopic
     )) {
         handleColorTemperatureCommand(payload, length);
     } else if (
         HASerializer::compareDataTopics(
             topic,
             uniqueId(),
-            AHATOFSTR(HARGBCommandTopic)
+            HARGBCommandTopic
         )
     ) {
         handleRGBCommand(payload, length);
@@ -264,8 +266,8 @@ void HALight::onMqttMessage(
 bool HALight::publishState(const bool state)
 {
     return publishOnDataTopic(
-        AHATOFSTR(HAStateTopic),
-        AHATOFSTR(state ? HAStateOn : HAStateOff),
+        HAStateTopic,
+        state ? HAStateOn : HAStateOff,
         true
     );
 }
@@ -279,7 +281,7 @@ bool HALight::publishBrightness(const uint8_t brightness)
     char str[3 + 1] = {0}; // uint8_t digits with null terminator
     HANumeric(brightness, 0).toStr(str);
 
-    return publishOnDataTopic(AHATOFSTR(HABrightnessStateTopic), str, true);
+    return publishOnDataTopic(HABrightnessStateTopic, str, true);
 }
 
 bool HALight::publishColorTemperature(const uint16_t temperature)
@@ -291,7 +293,7 @@ bool HALight::publishColorTemperature(const uint16_t temperature)
     char str[5 + 1] = {0}; // uint16_t digits with null terminator
     HANumeric(temperature, 0).toStr(str);
 
-    return publishOnDataTopic(AHATOFSTR(HAColorTemperatureStateTopic), str, true);
+    return publishOnDataTopic(HAColorTemperatureStateTopic, str, true);
 }
 
 bool HALight::publishRGBColor(const RGBColor& color)
@@ -314,7 +316,7 @@ bool HALight::publishRGBColor(const RGBColor& color)
     // append blue color
     HANumeric(color.blue, 0).toStr(&str[len]);
 
-    return publishOnDataTopic(AHATOFSTR(HARGBStateTopic), str, true);
+    return publishOnDataTopic(HARGBStateTopic, str, true);
 }
 
 void HALight::handleStateCommand(const uint8_t* cmd, const uint16_t length)
@@ -325,7 +327,7 @@ void HALight::handleStateCommand(const uint8_t* cmd, const uint16_t length)
         return;
     }
 
-    bool state = length == strlen_P(HAStateOn);
+    bool state = length == strlen(HAStateOn);
     _stateCallback(state, this);
 }
 

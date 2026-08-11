@@ -1,4 +1,6 @@
-#include "ArduinoHADefines.h"
+#include <cstring>
+
+#include "espHADefines.h"
 #include "HADevice.h"
 #include "HAMqtt.h"
 #include "utils/HAUtils.h"
@@ -23,15 +25,15 @@ HADevice::HADevice(const char* uniqueId) :
     _uniqueId(uniqueId),
     HADEVICE_INIT
 {
-    _serializer->set(AHATOFSTR(HADeviceIdentifiersProperty), _uniqueId);
+    _serializer->set(HADeviceIdentifiersProperty, _uniqueId);
 }
 
-HADevice::HADevice(const byte* uniqueId, const uint16_t length) :
+HADevice::HADevice(const uint8_t* uniqueId, const uint16_t length) :
     _uniqueId(HAUtils::byteArrayToStr(uniqueId, length)),
     HADEVICE_INIT
 {
     _ownsUniqueId = true;
-    _serializer->set(AHATOFSTR(HADeviceIdentifiersProperty), _uniqueId);
+    _serializer->set(HADeviceIdentifiersProperty, _uniqueId);
 }
 
 HADevice::~HADevice()
@@ -47,7 +49,7 @@ HADevice::~HADevice()
     }
 }
 
-bool HADevice::setUniqueId(const byte* uniqueId, const uint16_t length)
+bool HADevice::setUniqueId(const uint8_t* uniqueId, const uint16_t length)
 {
     if (_uniqueId) {
         return false; // unique ID cannot be changed at runtime once it's set
@@ -55,29 +57,56 @@ bool HADevice::setUniqueId(const byte* uniqueId, const uint16_t length)
 
     _uniqueId = HAUtils::byteArrayToStr(uniqueId, length);
     _ownsUniqueId = true;
-    _serializer->set(AHATOFSTR(HADeviceIdentifiersProperty), _uniqueId);
+    _serializer->set(HADeviceIdentifiersProperty, _uniqueId);
+    return true;
+}
+
+bool HADevice::setUniqueIdStr(char* pstr)
+{
+    if (_uniqueId) {
+        return false; // unique ID cannot be changed at runtime once it's set
+    }
+
+
+    char* dst = strdup(pstr); // include null terminator
+
+    _uniqueId = dst;
+    _ownsUniqueId = true;
+    _serializer->set(HADeviceIdentifiersProperty, _uniqueId);
     return true;
 }
 
 void HADevice::setManufacturer(const char* manufacturer)
 {
-    _serializer->set(AHATOFSTR(HADeviceManufacturerProperty), manufacturer);
+    _serializer->set(HADeviceManufacturerProperty, manufacturer);
 }
 
 void HADevice::setModel(const char* model)
 {
-    _serializer->set(AHATOFSTR(HADeviceModelProperty), model);
+    _serializer->set(HADeviceModelProperty, model);
 }
 
 void HADevice::setName(const char* name)
 {
-    _serializer->set(AHATOFSTR(HANameProperty), name);
+    _serializer->set(HANameProperty, name);
+}
+
+void HADevice::setName(char* unic_prefix, char* name)
+{  char str[80], *dst;
+   strcpy(str,unic_prefix);	
+   strcat(str,"_");	
+   strcpy(str,name);	
+
+    dst = strdup(str); // include null terminator
+
+    _serializer->set(HANameProperty, dst);
+
 }
 
 void HADevice::setSoftwareVersion(const char* softwareVersion)
 {
     _serializer->set(
-        AHATOFSTR(HADeviceSoftwareVersionProperty),
+        HADeviceSoftwareVersionProperty,
         softwareVersion
     );
 }
@@ -85,7 +114,7 @@ void HADevice::setSoftwareVersion(const char* softwareVersion)
 void HADevice::setConfigurationUrl(const char* url)
 {
     _serializer->set(
-        AHATOFSTR(HADeviceConfigurationUrlProperty),
+        HADeviceConfigurationUrlProperty,
         url
     );
 }
@@ -104,7 +133,7 @@ bool HADevice::enableSharedAvailability()
 
     const uint16_t topicLength = HASerializer::calculateDataTopicLength(
         nullptr,
-        AHATOFSTR(HAAvailabilityTopic)
+        HAAvailabilityTopic
     );
     if (topicLength == 0) {
         return false;
@@ -115,7 +144,7 @@ bool HADevice::enableSharedAvailability()
     if (HASerializer::generateDataTopic(
         _availabilityTopic,
         nullptr,
-        AHATOFSTR(HAAvailabilityTopic)
+        HAAvailabilityTopic
     ) > 0) {
         _sharedAvailability = true;
         return true;
@@ -146,10 +175,10 @@ void HADevice::publishAvailability() const
     }
 
     const char* payload = _available ? HAOnline : HAOffline;
-    const uint16_t length = strlen_P(payload);
+    const uint16_t length = strlen(payload);
 
     if (mqtt->beginPublish(_availabilityTopic, length, true)) {
-        mqtt->writePayload(AHATOFSTR(payload));
+        mqtt->writePayload(payload);
         mqtt->endPublish();
     }
 }

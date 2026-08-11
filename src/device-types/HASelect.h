@@ -111,11 +111,6 @@ public:
     inline void onCommand(HASELECT_CALLBACK(callback))
         { _commandCallback = callback; }
 
-#ifdef ARDUINOHA_TEST
-    inline HASerializerArray* getOptions() const
-        { return _options; }
-#endif
-
 protected:
     virtual void buildSerializer() override;
     virtual void onMqttConnected() override;

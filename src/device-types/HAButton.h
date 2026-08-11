@@ -9,7 +9,7 @@
 
 /**
  * HAButton represents a button that's displayed in the Home Assistant panel and
- * triggers some logic on your Arduino/ESP device once clicked.
+ * triggers some logic on your device once clicked.
  *
  * @note
  * You can find more information about this entity in the Home Assistant documentation:

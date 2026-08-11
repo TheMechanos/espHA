@@ -1,38 +1,32 @@
 #ifndef AHA_HAMQTT_H
 #define AHA_HAMQTT_H
 
-#include <Arduino.h>
-#include <Client.h>
-#include <IPAddress.h>
-#include "ArduinoHADefines.h"
+#include <string>
+#include <cstdint>
+#include "espHADefines.h"
 
 #define HAMQTT_CALLBACK(name) void (*name)()
 #define HAMQTT_STATE_CALLBACK(name) void (*name)(ConnectionState state)
 #define HAMQTT_MESSAGE_CALLBACK(name) void (*name)(const char* topic, const uint8_t* payload, uint16_t length)
 #define HAMQTT_DEFAULT_PORT 1883
 
-#ifdef ARDUINOHA_TEST
-class PubSubClientMock;
-#else
-class PubSubClient;
-#endif
+// Opaque type of the ESP-IDF "mqtt" component (mqtt_client.h). Kept forward-declared here
+// so this header stays framework-agnostic and doesn't pull ESP-IDF headers into every
+// translation unit that includes ArduinoHA. See HAMqtt.cpp for the real usage.
+struct esp_mqtt_client;
 
-#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
-#define HAMQTT_DEFAULT_DEVICES_LIMIT 6
-#else
 #define HAMQTT_DEFAULT_DEVICES_LIMIT 24
-#endif
 
 class HADevice;
 class HABaseDeviceType;
 
-#if defined(ARDUINO_API_VERSION)
-using namespace arduino;
-#endif
-
 /**
- * This class is a wrapper for the PubSub API.
- * It's a central point of the library where instances of all device types are stored.
+ * This class is the central point of the library where instances of all device types are
+ * stored, and the wrapper around the MQTT connection.
+ *
+ * It talks directly to the ESP-IDF "mqtt" component (esp_mqtt_client_*, from mqtt_client.h).
+ * The MQTT client manages its own TCP connection and reconnects on its own background
+ * FreeRTOS task, so this class doesn't need a Client&/WiFiClient at all.
  */
 class HAMqtt
 {
@@ -58,27 +52,17 @@ public:
     inline static HAMqtt* instance()
         { return _instance; }
 
-#ifdef ARDUINOHA_TEST
-    explicit HAMqtt(
-        PubSubClientMock* pubSub,
-        HADevice& device,
-        const uint8_t maxDevicesTypesNb = HAMQTT_DEFAULT_DEVICES_LIMIT
-    );
-#else
     /**
      * Creates a new instance of the HAMqtt class.
      * Please note that only one instance of the class can be initialized at the same time.
      *
-     * @param netClient The EthernetClient or WiFiClient that's going to be used for the network communication.
      * @param device An instance of the HADevice class representing your device.
      * @param maxDevicesTypesNb The maximum number of device types (sensors, switches, etc.) that you're going to implement.
      */
     explicit HAMqtt(
-        Client& netClient,
         HADevice& device,
         const uint8_t maxDevicesTypesNb = HAMQTT_DEFAULT_DEVICES_LIMIT
     );
-#endif
 
     /**
      * Removes singleton of the HAMqtt class.
@@ -167,38 +151,6 @@ public:
         { return _currentState; }
 
     /**
-     * Sets parameters of the MQTT connection using the IP address and port.
-     * The library will try to connect to the broker in first loop cycle.
-     * Please note that the library automatically reconnects to the broker if connection is lost.
-     *
-     * @param serverIp IP address of the MQTT broker.
-     * @param serverPort Port of the MQTT broker.
-     * @param username Username for authentication. It can be nullptr if the anonymous connection needs to be performed.
-     * @param password Password for authentication. It can be nullptr if the anonymous connection needs to be performed.
-     */
-    bool begin(
-        const IPAddress serverIp,
-        const uint16_t serverPort = HAMQTT_DEFAULT_PORT,
-        const char* username = nullptr,
-        const char* password = nullptr
-    );
-
-    /**
-     * Sets parameters of the MQTT connection using the IP address and the default port (1883).
-     * The library will try to connect to the broker in first loop cycle.
-     * Please note that the library automatically reconnects to the broker if connection is lost.
-     *
-     * @param serverIp IP address of the MQTT broker.
-     * @param username Username for authentication. It can be nullptr if the anonymous connection needs to be performed.
-     * @param password Password for authentication. It can be nullptr if the anonymous connection needs to be performed.
-     */
-    bool begin(
-        const IPAddress serverIp,
-        const char* username,
-        const char* password
-    );
-
-    /**
      * Sets parameters of the MQTT connection using the hostname and port.
      * The library will try to connect to the broker in first loop cycle.
      * Please note that the library automatically reconnects to the broker if connection is lost.
@@ -231,33 +183,38 @@ public:
     );
 
     /**
-     * Closes the MQTT connection.
+     * Disconnects from the MQTT broker and releases the underlying esp-mqtt client.
+     * A subsequent call to HAMqtt::begin() will create a fresh client.
      */
     bool disconnect();
 
     /**
-     * This method should be called periodically inside the main loop of the firmware.
-     * It's safe to call this method in some interval (like 5ms).
+     * Should be called in the sketch loop.
+     * It detects MQTT connection state changes and fires the connected/disconnected callbacks.
+     * The actual network I/O runs on esp-mqtt's own background task, so this is lightweight.
      */
     void loop();
 
     /**
-     * Returns true if connection to the MQTT broker is established.
+     * Returns `true` if the connection with the MQTT broker is acquired.
      */
     bool isConnected() const;
 
     /**
-     * Sets keep alive for the MQTT connection.
+     * Sets the keep alive time of the MQTT connection.
      * By default it's 15 seconds.
      *
-    * @param keepAlive Number of seconds to keep connection alive.
+     * @note Must be called before HAMqtt::begin() to take effect - it's applied when the
+     *       underlying esp-mqtt client is created.
+     * @param keepAlive Time in seconds.
      */
     void setKeepAlive(uint16_t keepAlive);
 
     /**
      * Sets the buffer size for the MQTT connection.
-     * By default it's 256 bytes.
+     * By default it's the esp-mqtt default (1024 bytes).
      *
+     * @note Must be called before HAMqtt::begin() to take effect, same as setKeepAlive().
      * @param size Size of the buffer.
      */
     bool setBufferSize(uint16_t size);
@@ -294,7 +251,7 @@ public:
     bool beginPublish(const char* topic, uint16_t payloadLength, bool retained = false);
 
     /**
-     * Writes given string to the TCP stream.
+     * Writes given string to the outgoing message buffer.
      * Please note that before writing any data the HAMqtt::beginPublish method
      * needs to be called.
      *
@@ -304,7 +261,7 @@ public:
     void writePayload(const char* data, const uint16_t length);
 
     /**
-     * Writes given data to the TCP stream.
+     * Writes given data to the outgoing message buffer.
      * Please note that before writing any data the HAMqtt::beginPublish method
      * needs to be called.
      *
@@ -314,13 +271,14 @@ public:
     void writePayload(const uint8_t* data, const uint16_t length);
 
     /**
-     * Writes given progmem data to the TCP stream.
+     * Writes the given null-terminated string to the outgoing message buffer.
+     * Its length is computed with strlen(), so it must not contain embedded null bytes.
      * Please note that before writing any data the HAMqtt::beginPublish method
      * needs to be called.
      *
-     * @param data Progmem data to publish.
+     * @param data The null-terminated string to publish.
      */
-    void writePayload(const __FlashStringHelper* data);
+    void writePayload(const char* data);
 
     /**
      * Finishes publishing of a message.
@@ -369,26 +327,29 @@ public:
      */
     void processMessage(const char* topic, const uint8_t* payload, uint16_t length);
 
-#ifdef ARDUINOHA_TEST
     inline uint8_t getDevicesTypesNb() const
         { return _devicesTypesNb; }
 
+    inline uint8_t getDevicesTypesNb_toreg() const
+        { return _devicesTypesNb_toreg; }
+
     inline HABaseDeviceType** getDevicesTypes() const
         { return _devicesTypes; }
-#endif
+
+    void  (* callback_loop)(int src); //  callback for long time spending in mqqt
+    void  set_callback_loop( void (* _callback_loop)(int src)); 
+
+    /// Interval between MQTT reconnects (milliseconds).
+    /// @note Kept for source compatibility. esp-mqtt reconnects on its own background task,
+    ///       so this value is currently unused.
+    uint16_t ReconnectInterval;
+///Get the state of the MQTT connection.
+    int  getState(void); 
 
 private:
-    /// Interval between MQTT reconnects (milliseconds).
-    static const uint16_t ReconnectInterval = 10000;
 
     /// Living instance of the HAMqtt class. It can be nullptr.
     static HAMqtt* _instance;
-
-    /**
-     * Attempts to connect to the MQTT broker.
-     * The method uses properties passed to the "begin" method.
-     */
-    void connectToServer();
 
     /**
      * This method is called each time the connection with MQTT broker is acquired.
@@ -400,12 +361,18 @@ private:
      */
     void setState(ConnectionState state);
 
-#ifdef ARDUINOHA_TEST
-    PubSubClientMock* _mqtt;
-#else
-    /// Instance of the PubSubClient class. It's initialized in the constructor.
-    PubSubClient* _mqtt;
-#endif
+    /**
+     * Raw esp-mqtt event handler, registered via esp_mqtt_client_register_event().
+     * Declared with plain C types (void* /const char* /int32_t) instead of the esp-mqtt
+     * typedefs so this header doesn't need to include any ESP-IDF headers - esp_event_base_t
+     * is itself just a `const char*` alias, so the signature is binary-identical to what
+     * esp_mqtt_client_register_event() expects. The cast to the real event types happens
+     * in HAMqtt.cpp, which does include mqtt_client.h.
+     */
+    static void mqttEventHandler(void* handlerArgs, const char* base, int32_t eventId, void* eventData);
+
+    /// Handles a MQTT_EVENT_DATA event (possibly one of several fragments of one message).
+    void handleIncomingMessage(void* eventData);
 
     /// Instance of the HADevice passed to the constructor.
     const HADevice& _device;
@@ -437,11 +404,13 @@ private:
     /// The password used for the authentication. It's set in the HAMqtt::begin method.
     const char* _password;
 
-    /// Time of the last connection attemps (milliseconds since boot).
-    uint32_t _lastConnectionAttemptAt;
+    /// Time of the last connection activity (milliseconds since boot).
+    uint32_t _lastConnectionActivity;
 
     /// The amount of registered devices types.
     uint8_t _devicesTypesNb;
+    /// The amount of devices types to register
+    uint8_t _devicesTypesNb_toreg;
 
     /// The maximum amount of devices types that can be registered.
     uint8_t _maxDevicesTypesNb;
@@ -460,6 +429,37 @@ private:
 
     /// The last known state of the MQTT connection.
     ConnectionState _currentState;
+
+    /// Handle of the underlying esp-mqtt client. Created in begin(), destroyed in
+    /// disconnect() and in the destructor.
+    struct esp_mqtt_client* _mqttClient;
+
+    /// Set from the MQTT event task (mqttEventHandler), read from the caller's task (loop()).
+    volatile bool _mqttConnected;
+
+    /// Keep-alive time (seconds) requested via setKeepAlive(), applied in begin().
+    uint16_t _keepAlive;
+
+    /// Buffer size requested via setBufferSize(), applied in begin().
+    uint16_t _bufferSize;
+
+    /// Topic of the message currently being assembled via beginPublish/writePayload/endPublish.
+    /// esp_mqtt_client_publish() takes the whole payload at once (no streaming write API), so
+    /// beginPublish/writePayload just buffer the payload here and endPublish flushes it in one call.
+    std::string _publishTopic;
+
+    /// Payload buffer used by beginPublish/writePayload/endPublish. See _publishTopic.
+    std::string _publishBuffer;
+
+    /// Retained flag captured by beginPublish, used by endPublish.
+    bool _publishRetained;
+
+    /// Topic of the message currently being reassembled from one or more MQTT_EVENT_DATA
+    /// fragments (esp-mqtt splits messages larger than the buffer size across several events).
+    std::string _incomingTopic;
+
+    /// Payload bytes received so far for the message in _incomingTopic.
+    std::string _incomingPayload;
 };
 
 #endif

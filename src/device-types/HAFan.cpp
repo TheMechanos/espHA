@@ -1,12 +1,14 @@
 #include "HAFan.h"
 #ifndef EX_ARDUINOHA_FAN
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HAUtils.h"
 #include "../utils/HASerializer.h"
 
 HAFan::HAFan(const char* uniqueId, const uint8_t features) :
-    HABaseDeviceType(AHATOFSTR(HAComponentFan), uniqueId),
+    HABaseDeviceType(HAComponentFan, uniqueId),
     _features(features),
     _icon(nullptr),
     _retain(false),
@@ -56,14 +58,14 @@ void HAFan::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 14); // 14 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HAIconProperty, _icon);
 
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -71,19 +73,19 @@ void HAFan::buildSerializer()
 
     if (_optimistic) {
         _serializer->set(
-            AHATOFSTR(HAOptimisticProperty),
+            HAOptimisticProperty,
             &_optimistic,
             HASerializer::BoolPropertyType
         );
     }
 
     if (_features & SpeedsFeature) {
-        _serializer->topic(AHATOFSTR(HAPercentageStateTopic));
-        _serializer->topic(AHATOFSTR(HAPercentageCommandTopic));
+        _serializer->topic(HAPercentageStateTopic);
+        _serializer->topic(HAPercentageCommandTopic);
 
         if (_speedRangeMax.isSet()) {
             _serializer->set(
-                AHATOFSTR(HASpeedRangeMaxProperty),
+                HASpeedRangeMaxProperty,
                 &_speedRangeMax,
                 HASerializer::NumberPropertyType
             );
@@ -91,7 +93,7 @@ void HAFan::buildSerializer()
 
         if (_speedRangeMin.isSet()) {
             _serializer->set(
-                AHATOFSTR(HASpeedRangeMinProperty),
+                HASpeedRangeMinProperty,
                 &_speedRangeMin,
                 HASerializer::NumberPropertyType
             );
@@ -100,8 +102,8 @@ void HAFan::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HAStateTopic);
+    _serializer->topic(HACommandTopic);
 }
 
 void HAFan::onMqttConnected()
@@ -118,10 +120,10 @@ void HAFan::onMqttConnected()
         publishSpeed(_currentSpeed);
     }
 
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 
     if (_features & SpeedsFeature) {
-        subscribeTopic(uniqueId(), AHATOFSTR(HAPercentageCommandTopic));
+        subscribeTopic(uniqueId(), HAPercentageCommandTopic);
     }
 }
 
@@ -134,13 +136,13 @@ void HAFan::onMqttMessage(
     if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         handleStateCommand(payload, length);
     } else if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HAPercentageCommandTopic)
+        HAPercentageCommandTopic
     )) {
         handleSpeedCommand(payload, length);
     }
@@ -149,8 +151,8 @@ void HAFan::onMqttMessage(
 bool HAFan::publishState(const bool state)
 {
     return publishOnDataTopic(
-        AHATOFSTR(HAStateTopic),
-        AHATOFSTR(state ? HAStateOn : HAStateOff),
+        HAStateTopic,
+        state ? HAStateOn : HAStateOff,
         true
     );
 }
@@ -164,7 +166,7 @@ bool HAFan::publishSpeed(const uint16_t speed)
     char str[5 + 1] = {0}; // uint16_t digits with null terminator
     HANumeric(speed, 0).toStr(str);
 
-    return publishOnDataTopic(AHATOFSTR(HAPercentageStateTopic), str, true);
+    return publishOnDataTopic(HAPercentageStateTopic, str, true);
 }
 
 void HAFan::handleStateCommand(const uint8_t* cmd, const uint16_t length)
@@ -175,7 +177,7 @@ void HAFan::handleStateCommand(const uint8_t* cmd, const uint16_t length)
         return;
     }
 
-    bool state = length == strlen_P(HAStateOn);
+    bool state = length == strlen(HAStateOn);
     _stateCallback(state, this);
 }
 

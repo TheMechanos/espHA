@@ -5,7 +5,7 @@
 #include "../utils/HASerializer.h"
 
 HASensor::HASensor(const char* uniqueId, const uint16_t features) :
-    HABaseDeviceType(AHATOFSTR(HAComponentSensor), uniqueId),
+    HABaseDeviceType(HAComponentSensor, uniqueId),
     _features(features),
     _deviceClass(nullptr),
     _stateClass(nullptr),
@@ -20,15 +20,15 @@ HASensor::HASensor(const char* uniqueId, const uint16_t features) :
 bool HASensor::setValue(const char* value)
 {
     if (!value) {
-        return publishOnDataTopic(AHATOFSTR(HAStateTopic), AHATOFSTR(HAStateNone), true);
+        return publishOnDataTopic(HAStateTopic, HAStateNone, true);
     }
 
-    return publishOnDataTopic(AHATOFSTR(HAStateTopic), value, true);
+    return publishOnDataTopic(HAStateTopic, value, true);
 }
 
 bool HASensor::setJsonAttributes(const char* json)
 {
-    return publishOnDataTopic(AHATOFSTR(HAJsonAttributesTopic), json, true);
+    return publishOnDataTopic(HAJsonAttributesTopic, json, true);
 }
 
 void HASensor::setExpireAfter(uint16_t expireAfter)
@@ -47,17 +47,17 @@ void HASensor::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 13); // 13 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HADeviceClassProperty), _deviceClass);
-    _serializer->set(AHATOFSTR(HAStateClassProperty), _stateClass);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
-    _serializer->set(AHATOFSTR(HAUnitOfMeasurementProperty), _unitOfMeasurement);
+    _serializer->set(HADeviceClassProperty, _deviceClass);
+    _serializer->set(HAStateClassProperty, _stateClass);
+    _serializer->set(HAIconProperty, _icon);
+    _serializer->set(HAUnitOfMeasurementProperty, _unitOfMeasurement);
 
     if (_forceUpdate) {
         _serializer->set(
-            AHATOFSTR(HAForceUpdateProperty),
+            HAForceUpdateProperty,
             &_forceUpdate,
             HASerializer::BoolPropertyType
         );
@@ -65,19 +65,19 @@ void HASensor::buildSerializer()
 
     if (_expireAfter.isSet()) {
         _serializer->set(
-            AHATOFSTR(HAExpireAfterProperty),
+            HAExpireAfterProperty,
             &_expireAfter,
             HASerializer::NumberPropertyType
         );
     }
 
     if (_features & JsonAttributesFeature) {
-        _serializer->topic(AHATOFSTR(HAJsonAttributesTopic));
+        _serializer->topic(HAJsonAttributesTopic);
     }
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
+    _serializer->topic(HAStateTopic);
 }
 
 void HASensor::onMqttConnected()

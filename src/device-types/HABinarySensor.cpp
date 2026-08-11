@@ -5,7 +5,7 @@
 #include "../utils/HASerializer.h"
 
 HABinarySensor::HABinarySensor(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentBinarySensor), uniqueId),
+    HABaseDeviceType(HAComponentBinarySensor, uniqueId),
     _class(nullptr),
     _icon(nullptr),
     _currentState(false)
@@ -43,15 +43,15 @@ void HABinarySensor::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 9); // 9 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HADeviceClassProperty), _class);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HADeviceClassProperty, _class);
+    _serializer->set(HAIconProperty, _icon);
 
     if (_expireAfter.isSet()) {
         _serializer->set(
-            AHATOFSTR(HAExpireAfterProperty),
+            HAExpireAfterProperty,
             &_expireAfter,
             HASerializer::NumberPropertyType
         );
@@ -59,7 +59,7 @@ void HABinarySensor::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
+    _serializer->topic(HAStateTopic);
 }
 
 void HABinarySensor::onMqttConnected()
@@ -76,8 +76,8 @@ void HABinarySensor::onMqttConnected()
 bool HABinarySensor::publishState(const bool state)
 {
     return publishOnDataTopic(
-        AHATOFSTR(HAStateTopic),
-        AHATOFSTR(state ? HAStateOn : HAStateOff),
+        HAStateTopic,
+        state ? HAStateOn : HAStateOff,
         true
     );
 }

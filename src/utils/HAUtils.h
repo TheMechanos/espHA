@@ -31,7 +31,7 @@ public:
      */
     static void byteArrayToStr(
         char* dst,
-        const byte* src,
+        const uint8_t* src,
         const uint16_t length
     );
 
@@ -44,7 +44,7 @@ public:
      * @returns Newly allocated string containing the hex representation.
      */
     static char* byteArrayToStr(
-        const byte* src,
+        const uint8_t* src,
         const uint16_t length
     );
 };

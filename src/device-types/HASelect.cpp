@@ -1,11 +1,13 @@
 #include "HASelect.h"
 #ifndef EX_ARDUINOHA_SELECT
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
 
 HASelect::HASelect(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentSelect), uniqueId),
+    HABaseDeviceType(HAComponentSelect, uniqueId),
     _options(nullptr),
     _currentState(-1),
     _icon(nullptr),
@@ -97,19 +99,19 @@ void HASelect::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 11); // 11 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HAIconProperty, _icon);
     _serializer->set(
-        AHATOFSTR(HAOptionsProperty),
+        HAOptionsProperty,
         _options,
         HASerializer::ArrayPropertyType
     );
 
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -117,7 +119,7 @@ void HASelect::buildSerializer()
 
     if (_optimistic) {
         _serializer->set(
-            AHATOFSTR(HAOptimisticProperty),
+            HAOptimisticProperty,
             &_optimistic,
             HASerializer::BoolPropertyType
         );
@@ -125,8 +127,8 @@ void HASelect::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HAStateTopic);
+    _serializer->topic(HACommandTopic);
 }
 
 void HASelect::onMqttConnected()
@@ -142,7 +144,7 @@ void HASelect::onMqttConnected()
         publishState(_currentState);
     }
 
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 }
 
 void HASelect::onMqttMessage(
@@ -154,7 +156,7 @@ void HASelect::onMqttMessage(
     if (_commandCallback && HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         const uint8_t optionsNb = _options->getItemsNb();
         const HASerializerArray::ItemType* options = _options->getItems();
@@ -175,7 +177,7 @@ bool HASelect::publishState(const int8_t state)
     }
 
     if (state < 0) {
-        return publishOnDataTopic(AHATOFSTR(HAStateTopic), AHATOFSTR(HAStateNone), true);
+        return publishOnDataTopic(HAStateTopic, HAStateNone, true);
     }
 
     const char* item = _options->getItems()[state];
@@ -183,7 +185,7 @@ bool HASelect::publishState(const int8_t state)
         return false;
     }
 
-    return publishOnDataTopic(AHATOFSTR(HAStateTopic), item, true);
+    return publishOnDataTopic(HAStateTopic, item, true);
 }
 
 uint8_t HASelect::countOptionsInString(const char* options) const

@@ -1,11 +1,13 @@
 #include "HADeviceTrigger.h"
 #ifndef EX_ARDUINOHA_DEVICE_TRIGGER
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
 
 HADeviceTrigger::HADeviceTrigger(const char* type, const char* subtype) :
-    HABaseDeviceType(AHATOFSTR(HAComponentDeviceAutomation), nullptr),
+    HABaseDeviceType(HAComponentDeviceAutomation, nullptr),
     _type(type),
     _subtype(subtype),
     _isProgmemType(false),
@@ -15,7 +17,7 @@ HADeviceTrigger::HADeviceTrigger(const char* type, const char* subtype) :
 }
 
 HADeviceTrigger::HADeviceTrigger(TriggerType type, const char* subtype) :
-    HABaseDeviceType(AHATOFSTR(HAComponentDeviceAutomation), nullptr),
+    HABaseDeviceType(HAComponentDeviceAutomation, nullptr),
     _type(determineProgmemType(type)),
     _subtype(subtype),
     _isProgmemType(true),
@@ -25,7 +27,7 @@ HADeviceTrigger::HADeviceTrigger(TriggerType type, const char* subtype) :
 }
 
 HADeviceTrigger::HADeviceTrigger(const char* type, TriggerSubtype subtype) :
-    HABaseDeviceType(AHATOFSTR(HAComponentDeviceAutomation), nullptr),
+    HABaseDeviceType(HAComponentDeviceAutomation, nullptr),
     _type(type),
     _subtype(determineProgmemSubtype(subtype)),
     _isProgmemType(false),
@@ -35,7 +37,7 @@ HADeviceTrigger::HADeviceTrigger(const char* type, TriggerSubtype subtype) :
 }
 
 HADeviceTrigger::HADeviceTrigger(TriggerType type, TriggerSubtype subtype) :
-    HABaseDeviceType(AHATOFSTR(HAComponentDeviceAutomation), nullptr),
+    HABaseDeviceType(HAComponentDeviceAutomation, nullptr),
     _type(determineProgmemType(type)),
     _subtype(determineProgmemSubtype(subtype)),
     _isProgmemType(true),
@@ -57,7 +59,7 @@ bool HADeviceTrigger::trigger()
         return false;
     }
 
-    return publishOnDataTopic(AHATOFSTR(HATopic), "");
+    return publishOnDataTopic(HATopic, "");
 }
 
 void HADeviceTrigger::buildSerializer()
@@ -68,26 +70,26 @@ void HADeviceTrigger::buildSerializer()
 
     _serializer = new HASerializer(this, 5); // 5 - max properties nb
     _serializer->set(
-        AHATOFSTR(HAAutomationTypeProperty),
-        AHATOFSTR(HATrigger),
+        HAAutomationTypeProperty,
+        HATrigger,
         HASerializer::ProgmemPropertyValue
     );
     _serializer->set(
-        AHATOFSTR(HATypeProperty),
+        HATypeProperty,
         _type,
         _isProgmemType
             ? HASerializer::ProgmemPropertyValue
             : HASerializer::ConstCharPropertyValue
     );
     _serializer->set(
-        AHATOFSTR(HASubtypeProperty),
+        HASubtypeProperty,
         _subtype,
         _isProgmemSubtype
             ? HASerializer::ProgmemPropertyValue
             : HASerializer::ConstCharPropertyValue
     );
     _serializer->set(HASerializer::WithDevice);
-    _serializer->topic(AHATOFSTR(HATopic));
+    _serializer->topic(HATopic);
 }
 
 void HADeviceTrigger::onMqttConnected()
@@ -105,9 +107,9 @@ uint16_t HADeviceTrigger::calculateIdSize() const
         return 0;
     }
 
-    const uint16_t typeSize = _isProgmemType ? strlen_P(_type) : strlen(_type);
+    const uint16_t typeSize = _isProgmemType ? strlen(_type) : strlen(_type);
     const uint16_t subtypeSize = _isProgmemSubtype
-        ? strlen_P(_subtype)
+        ? strlen(_subtype)
         : strlen(_subtype);
 
     // plus underscore separator and null terminator
@@ -124,15 +126,15 @@ void HADeviceTrigger::buildUniqueId()
     char* id = new char[idSize];
 
     if (_isProgmemType) {
-        strcpy_P(id, _type);
+        strcpy(id, _type);
     } else {
         strcpy(id, _type);
     }
 
-    strcat_P(id, HASerializerUnderscore);
+    strcat(id, HASerializerUnderscore);
 
     if (_isProgmemSubtype) {
-        strcat_P(id, _subtype);
+        strcat(id, _subtype);
     } else {
         strcat(id, _subtype);
     }

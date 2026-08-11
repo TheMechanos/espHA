@@ -5,7 +5,7 @@
 #include "../utils/HASerializer.h"
 
 HADeviceTracker::HADeviceTracker(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentDeviceTracker), uniqueId),
+    HABaseDeviceType(HAComponentDeviceTracker, uniqueId),
     _icon(nullptr),
     _sourceType(SourceTypeUnknown),
     _currentState(StateUnknown)
@@ -34,18 +34,18 @@ void HADeviceTracker::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 8); // 8 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HAIconProperty, _icon);
     _serializer->set(
-        AHATOFSTR(HASourceTypeProperty),
+        HASourceTypeProperty,
         getSourceTypeProperty(),
         HASerializer::ProgmemPropertyValue
     );
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
+    _serializer->topic(HAStateTopic);
 }
 
 void HADeviceTracker::onMqttConnected()
@@ -61,41 +61,41 @@ void HADeviceTracker::onMqttConnected()
 
 bool HADeviceTracker::publishState(const TrackerState state)
 {
-    const __FlashStringHelper *stateStr = nullptr;
+    const char *stateStr = nullptr;
     switch (state) {
     case StateHome:
-        stateStr = AHATOFSTR(HAHome);
+        stateStr = HAHome;
         break;
 
     case StateNotHome:
-        stateStr = AHATOFSTR(HANotHome);
+        stateStr = HANotHome;
         break;
 
     case StateNotAvailable:
-        stateStr = AHATOFSTR(HAOffline);
+        stateStr = HAOffline;
         break;
 
     default:
         return false;
     }
 
-    return publishOnDataTopic(AHATOFSTR(HAStateTopic), stateStr, true);
+    return publishOnDataTopic(HAStateTopic, stateStr, true);
 }
 
-const __FlashStringHelper* HADeviceTracker::getSourceTypeProperty() const
+const char* HADeviceTracker::getSourceTypeProperty() const
 {
     switch (_sourceType) {
     case SourceTypeGPS:
-        return AHATOFSTR(HAGPSType);
+        return HAGPSType;
 
     case SourceTypeRouter:
-        return AHATOFSTR(HARouterType);
+        return HARouterType;
 
     case SourceTypeBluetooth:
-        return AHATOFSTR(HABluetoothType);
+        return HABluetoothType;
 
     case SourceTypeBluetoothLE:
-        return AHATOFSTR(HABluetoothLEType);
+        return HABluetoothLEType;
 
     default:
         return nullptr;

@@ -1,7 +1,7 @@
 #ifndef AHA_HADEVICE_H
 #define AHA_HADEVICE_H
 
-#include <Arduino.h>
+#include <cstdint>
 
 class HASerializer;
 
@@ -34,7 +34,7 @@ public:
      * @param uniqueId Bytes array that's going to be converted into the string.
      * @param length Number of bytes in the array.
      */
-    HADevice(const byte* uniqueId, const uint16_t length);
+    HADevice(const uint8_t* uniqueId, const uint16_t length);
 
     /**
      * Deletes HASerializer and the availability topic if the shared availability was enabled.
@@ -94,7 +94,8 @@ public:
      * @param length Number of bytes in the array.
      * @note The unique ID can be set only once (via constructor or using this method).
      */
-    bool setUniqueId(const byte* uniqueId, const uint16_t length);
+    bool setUniqueId(const uint8_t* uniqueId, const uint16_t length);
+    bool setUniqueIdStr(char* pstr);
 
     /**
      * Sets the "manufacturer" property that's going to be displayed in the Home Assistant.
@@ -116,6 +117,7 @@ public:
      * @param name Any string. Keep it short to save the memory.
      */
     void setName(const char* name);
+    void setName(char *unic_prefix, char *name);
 
     /**
      * Sets the "software version" property that's going to be displayed in the Home Assistant.

@@ -61,9 +61,9 @@ protected:
 
 private:
     /**
-     * Returns progmem string representing the encoding property.
+     * Returns string representing the encoding property.
      */
-    const __FlashStringHelper* getEncodingProperty() const;
+    const char* getEncodingProperty() const;
 
     /// The encoding of the image's data. By default it's `HACamera::EncodingBinary`.
     ImageEncoding _encoding;

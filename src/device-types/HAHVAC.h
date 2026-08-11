@@ -613,10 +613,10 @@ private:
     void handleTargetTemperatureCommand(const uint8_t* cmd, const uint16_t length);
 
     /**
-     * Returns progmem string representing value template for the command
+     * Returns string representing value template for the command
      * that contains floating point numbers.
      */
-    const __FlashStringHelper* getCommandWithFloatTemplate();
+    const char* getCommandWithFloatTemplate();
 
     /// Features enabled for the HVAC.
     const uint16_t _features;

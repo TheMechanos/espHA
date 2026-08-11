@@ -1,111 +1,107 @@
-# Arduino Home Assistant integration 🏠
+# espHA
 
-[![](https://img.shields.io/github/v/release/dawidchyrzynski/arduino-home-assistant?label=Version)](https://github.com/dawidchyrzynski/arduino-home-assistant/releases)
-[![](https://img.shields.io/badge/Browse_Documentation-40BC13)](https://dawidchyrzynski.github.io/arduino-home-assistant/)
-[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/dawidchyrzynski)
+Home Assistant MQTT discovery library for **ESP-IDF**.
 
-ArduinoHA allows to integrate an Arduino/ESP based device with Home Assistant using MQTT.
-The library is designed to use as low resources (RAM/flash) as possible.
-Initially, it was optimized to work on Arduino Uno with Ethernet Shield,
-but I successfully use it on ESP8266/ESP8255 boards in my projects.
+`espHA` is a fork of [Dawid Chyrzynski's arduino-home-assistant](https://github.com/dawidchyrzynski/arduino-home-assistant),
+rewritten to drop the Arduino core dependency entirely. It talks to the MQTT broker directly
+through the ESP-IDF `mqtt` component (`esp_mqtt_client_*`, see `HAMqtt.cpp`), which runs its own
+background FreeRTOS task and reconnects on its own — there's no `Client`/`WiFiClient` to wire up,
+and `HAMqtt::loop()` only needs to notice connection-state transitions rather than drive any
+blocking I/O.
 
-## Features
+## Requirements
 
-* Two-way communication (state reporting and command execution)
-* MQTT discovery (device is added to the Home Assistant panel automatically)
-* MQTT Last Will and Testament
-* Support for custom MQTT messages (publishing and subscribing)
-* Auto reconnect with MQTT broker
-* Reporting availability (online/offline states) of a device
-* Doxygen documentation for all classes
-* Covered by unit tests (AUnit + EpoxyDuino + AUniter)
+- ESP-IDF (tested against v5.x)
+- The `mqtt` component (part of ESP-IDF) and a working Wi-Fi/network connection
+- **No Arduino core** — the library builds as a plain ESP-IDF component. If the rest of your
+  project uses `arduino-esp32` as an ESP-IDF component too, that's fine, espHA just doesn't
+  require it itself.
 
-## Supported HA types
+## Installation
 
-| Home Assistant type | Supported |
-| ------------------- | :--------: |
-| Alarm control panel |     ❌     |
-| Binary sensor       |     ✅     |
-| Button              |     ✅     |
-| Camera              |     ✅     |
-| Cover               |     ✅     |
-| Device tracker      |     ✅     |
-| Device trigger      |     ✅     |
-| Event               |     ❌     |
-| Fan                 |     ✅     |
-| Humidifier          |     ❌     |
-| Image               |     ❌     |
-| HVAC                |     ✅     |
-| Lawn mower          |     ❌     |
-| Light               |     ✅     |
-| Lock                |     ✅     |
-| Number              |     ✅     |
-| Scene               |     ✅     |
-| Select              |     ✅     |
-| Sensor              |     ✅     |
-| Siren               |     ❌     |
-| Switch              |     ✅     |
-| Update              |     ❌     |
-| Tag scanner         |     ✅     |
-| Text                |     ❌     |
-| Vacuum              |     ❌     |
-| Valve               |     ❌     |
-| Water heater        |     ❌     |
+Drop this folder into your project's `components/` directory (or add it as a git submodule
+there). ESP-IDF will pick it up automatically via `idf_component_register()` in
+`CMakeLists.txt` — no further registration needed.
 
-## Examples
+## Usage
 
-|Example|Description                  |
-|-------|-----------------------------|
-|[Binary sensor](examples/binary-sensor/binary-sensor.ino)|Using the binary sensor as a door contact sensor.|
-|[Button](examples/button/button.ino)|Adding simple buttons to the Home Assistant panel.|
-|[Camera](examples/esp32-cam/esp32-cam.ino)|Publishing the preview from the ESP32-CAM module.|
-|[Cover](examples/cover/cover.ino)|Controlling a window cover (open / close / stop).|
-|[Device trigger](examples/multi-state-button/multi-state-button.ino)|Implementation of a simple wall switch that reports press and hold states.|
-|[Fan](examples/fan/fan.ino)|Controlling a simple fan (state + speed).|
-|[HVAC](examples/hvac/hvac.ino)|HVAC controller with multiple modes, power control and target temperature.|
-|[Lock](examples/lock/lock.ino)|A simple door lock that's controlled by the Home Assistant.|
-|[Light](examples/light/light.ino)|A simple light that allows changing brightness, color temperature and RGB color.|
-|[Number](examples/number/number.ino)|Adding an interactive numeric slider in the Home Assistant panel.|
-|[Scene](examples/scene/scene.ino)|Adding a custom scene in the Home Assistant panel. |
-|[Select](examples/select/select.ino)|A dropdown selector that's displayed in the Home Assistant panel.|
-|[Sensor](examples/sensor/sensor.ino)|A simple sensor that reports a state in a string representation (open / opening / close).|
-|[Analog sensor](examples/sensor-analog/sensor-analog.ino)|Reporting the analog pin's voltage to the Home Assistant.|
-|[Integer sensor](examples/sensor-integer/sensor-integer.ino)|Reporting the device's uptime to the Home Assistant.|
-|[Switch](examples/led-switch/led-switch.ino)|The LED that's controlled by the Home Assistant.|
-|[Multi-switch](examples/multi-switch/multi-switch.ino)|Multiple switches controlled by the Home Assistant.|
-|[Tag scanner](examples/tag-scanner/tag-scanner.ino)|Scanning RFID tags using the MFRC522 module.|
-|[Availability](examples/availability/availability.ino)|Reporting entities' availability (online / offline) to the Home Assistant.|
-|[Advanced availability](examples/advanced-availability/advanced-availability.ino)|Advanced availability reporting with MQTT LWT (Last Will and Testament).|
-|[MQTT advanced](examples/mqtt-advanced/mqtt-advanced.ino)|Subscribing to custom topics and publishing custom messages.|
-|[MQTT with credentials](examples/mqtt-with-credentials/mqtt-with-credentials.ino)|Establishing connection with a MQTT broker using the credentials. |
-|[NodeMCU (ESP8266)](examples/nodemcu/nodemcu.ino)|Basic example for ESP8266 devices.|
-|[Arduino Nano 33 IoT](examples/nano33iot/nano33iot.ino)|Basic example for Arduino Nano 33 IoT (SAMD family).|
-|[mDNS discovery](examples/mdns/mdns.ino)|Make your ESP8266 discoverable via the mDNS.|
+```cpp
+#include <espHA.h>
 
-## Compatible hardware
+HADevice device;
+HAMqtt mqtt(device);
+HAButton buttonA("myButtonA");
 
-The library uses the Arduino Ethernet Client API for interacting with the network hardware.
-It should work fine as long as the `Client` class is available.
+static void onButtonCommand(HAButton* sender)
+{
+    // handle the button press
+}
 
-Here is the list of devices on which the library was tested:
+void app_main_init()
+{
+    // Unique ID is required before HAMqtt::begin() will do anything.
+    uint8_t id[] = {1, 2, 3, 4};
+    device.setUniqueId(id, sizeof(id));
+    device.setName("My Device");
 
-* Arduino Uno
-* Arduino Mega
-* Arduino Nano
-* Arduino Pro Mini
-* Arduino Nano 33 IoT
-* Arduino Due
-* NodeMCU
-* Controllino Mega (Pure)
-* Controllino Maxi (Pure)
-* ESP-01
-* ESP32-CAM
-* Sonoff Dual R2
-* Sonoff Dual R3
-* Sonoff Basic
-* Sonoff Mini
-* Tuya Wi-Fi switch module
-* Tuya Wi-Fi curtain module
+    buttonA.setName("Click me");
+    buttonA.setIcon("mdi:gesture-tap-button");
+    buttonA.onCommand(onButtonCommand);
 
-Please note that it's not the complete list of supported devices.
-You may try to use the library on any device that uses Arduino core.
+    // Wi-Fi must already be connected at this point.
+    mqtt.begin("192.168.0.10", 1883, "mqtt-user", "mqtt-pass");
+}
+
+void app_main_loop()
+{
+    mqtt.loop(); // cheap: just checks for connection-state transitions
+}
+```
+
+`HAMqtt::begin()` accepts a hostname or a dotted-decimal IP address as a plain string — there's
+no `IPAddress` overload, since that's an Arduino type this library no longer depends on.
+
+## Supported device types
+
+`HABinarySensor`, `HAButton`, `HACamera`, `HACover`, `HADeviceTracker`, `HADeviceTrigger`,
+`HAFan`, `HAHVAC`, `HALight`, `HALock`, `HANumber`, `HAScene`, `HASelect`, `HASensor`,
+`HASensorNumber`, `HASwitch`, `HATagScanner`, `HAText`.
+
+Each type can be compiled out to save flash/RAM via `EX_ARDUINOHA_*` defines in
+`src/espHADefines.h` (e.g. `#define EX_ARDUINOHA_CAMERA` if you don't use the camera entity).
+
+## Debug logging
+
+Debug output goes through the ESP-IDF logging system under the `"AHA"` tag, not through any
+Arduino `Serial` object. Enable it with:
+
+```cpp
+#define ESPHA_DEBUG
+#include <espHA.h>
+```
+
+placed before the include in *one* translation unit (or add it as a project-wide compile
+definition), then control verbosity as usual — `idf.py menuconfig` (Component config → Log
+output) or at runtime with `esp_log_level_set("AHA", ESP_LOG_DEBUG)`.
+
+## What changed vs. upstream ArduinoHA
+
+- MQTT transport: `PubSubClient`/`Client&` → ESP-IDF's `mqtt` component, used directly.
+- No `Arduino.h`, `String`, `IPAddress`, `byte`, `millis()`, `F()`/`PROGMEM`, or
+  `__FlashStringHelper` anywhere in `src/`. Every "constant string" the library owns is a plain
+  `const char*` — ESP32 has a single unified address space, so there was never a real
+  flash-vs-RAM distinction to preserve there.
+- Debug printing (`Serial.print()`-style macros) replaced with formatted calls straight onto
+  `ESP_LOGD`.
+- `examples/` from upstream (Arduino `.ino` sketches) are kept under `examples_old/` for
+  reference only — they target the Arduino IDE/PlatformIO and aren't part of this component's
+  build.
+
+## License
+
+No LICENSE file is included in this fork yet. Until one is added, check the terms of the
+upstream project this was forked from: https://github.com/dawidchyrzynski/arduino-home-assistant
+
+## Author
+
+Sebastian Koczur <themechanos@gmail.com> — https://github.com/TheMechanos/espHA

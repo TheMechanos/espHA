@@ -5,7 +5,7 @@
 #include "../utils/HASerializer.h"
 
 HAScene::HAScene(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentScene), uniqueId),
+    HABaseDeviceType(HAComponentScene, uniqueId),
     _icon(nullptr),
     _retain(false),
     _commandCallback(nullptr)
@@ -20,15 +20,15 @@ void HAScene::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 8); // 8 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HAIconProperty, _icon);
 
     // optional property
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -36,13 +36,13 @@ void HAScene::buildSerializer()
 
     // HA 2022.10 throws an exception if this property is not set
     _serializer->set(
-        AHATOFSTR(HAPayloadOnProperty),
-        AHATOFSTR(HAStateOn),
+        HAPayloadOnProperty,
+        HAStateOn,
         HASerializer::ProgmemPropertyValue
     );
 
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HACommandTopic);
 }
 
 void HAScene::onMqttConnected()
@@ -53,7 +53,7 @@ void HAScene::onMqttConnected()
 
     publishConfig();
     publishAvailability();
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 }
 
 void HAScene::onMqttMessage(
@@ -68,7 +68,7 @@ void HAScene::onMqttMessage(
     if (_commandCallback && HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         _commandCallback(this);
     }

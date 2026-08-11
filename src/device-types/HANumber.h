@@ -213,14 +213,14 @@ private:
     void handleCommand(const uint8_t* cmd, const uint16_t length);
 
     /**
-     * Returns progmem string representing mode of the number
+     * Returns string representing mode of the number
      */
-    const __FlashStringHelper* getModeProperty() const;
+    const char* getModeProperty() const;
 
     /**
-     * Returns progmem string representing value template for the command.
+     * Returns string representing value template for the command.
      */
-    const __FlashStringHelper* getCommandTemplate();
+    const char* getCommandTemplate();
 
     /// The precision of the number. By default it's `HANumber::PrecisionP0`.
     const NumberPrecision _precision;

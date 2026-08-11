@@ -5,7 +5,7 @@
 #include "../utils/HASerializer.h"
 
 HAButton::HAButton(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentButton), uniqueId),
+    HABaseDeviceType(HAComponentButton, uniqueId),
     _class(nullptr),
     _icon(nullptr),
     _retain(false),
@@ -21,16 +21,16 @@ void HAButton::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 9); // 9 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HADeviceClassProperty), _class);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HADeviceClassProperty, _class);
+    _serializer->set(HAIconProperty, _icon);
 
     // optional property
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -38,7 +38,7 @@ void HAButton::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HACommandTopic);
 }
 
 void HAButton::onMqttConnected()
@@ -49,7 +49,7 @@ void HAButton::onMqttConnected()
 
     publishConfig();
     publishAvailability();
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 }
 
 void HAButton::onMqttMessage(
@@ -64,7 +64,7 @@ void HAButton::onMqttMessage(
     if (_commandCallback && HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         _commandCallback(this);
     }

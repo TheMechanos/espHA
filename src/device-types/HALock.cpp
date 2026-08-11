@@ -1,11 +1,13 @@
 #include "HALock.h"
 #ifndef EX_ARDUINOHA_LOCK
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
 
 HALock::HALock(const char* uniqueId) :
-    HABaseDeviceType(AHATOFSTR(HAComponentLock), uniqueId),
+    HABaseDeviceType(HAComponentLock, uniqueId),
     _icon(nullptr),
     _retain(false),
     _optimistic(false),
@@ -36,14 +38,14 @@ void HALock::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 10); // 10 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HAIconProperty, _icon);
 
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -51,7 +53,7 @@ void HALock::buildSerializer()
 
     if (_optimistic) {
         _serializer->set(
-            AHATOFSTR(HAOptimisticProperty),
+            HAOptimisticProperty,
             &_optimistic,
             HASerializer::BoolPropertyType
         );
@@ -59,8 +61,8 @@ void HALock::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HAStateTopic);
+    _serializer->topic(HACommandTopic);
 }
 
 void HALock::onMqttConnected()
@@ -76,7 +78,7 @@ void HALock::onMqttConnected()
         publishState(_currentState);
     }
 
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 }
 
 void HALock::onMqttMessage(
@@ -88,7 +90,7 @@ void HALock::onMqttMessage(
     if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         handleCommand(payload, length);
     }
@@ -101,8 +103,8 @@ bool HALock::publishState(const LockState state)
     }
 
     return publishOnDataTopic(
-        AHATOFSTR(HAStateTopic),
-        AHATOFSTR(state == StateLocked ? HAStateLocked : HAStateUnlocked),
+        HAStateTopic,
+        state == StateLocked ? HAStateLocked : HAStateUnlocked,
         true
     );
 }
@@ -113,11 +115,11 @@ void HALock::handleCommand(const uint8_t* cmd, const uint16_t length)
         return;
     }
 
-    if (memcmp_P(cmd, HALockCommand, length) == 0) {
+    if (memcmp(cmd, HALockCommand, length) == 0) {
         _commandCallback(CommandLock, this);
-    } else if (memcmp_P(cmd, HAUnlockCommand, length) == 0) {
+    } else if (memcmp(cmd, HAUnlockCommand, length) == 0) {
         _commandCallback(CommandUnlock, this);
-    } else if (memcmp_P(cmd, HAOpenCommand, length) == 0) {
+    } else if (memcmp(cmd, HAOpenCommand, length) == 0) {
         _commandCallback(CommandOpen, this);
     }
 }

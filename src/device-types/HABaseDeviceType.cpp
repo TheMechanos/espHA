@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "HABaseDeviceType.h"
 #include "../HAMqtt.h"
 #include "../HADevice.h"
@@ -5,7 +7,7 @@
 #include "../utils/HASerializer.h"
 
 HABaseDeviceType::HABaseDeviceType(
-    const __FlashStringHelper* componentName,
+    const char* componentName,
     const char* uniqueId
 ) :
     _componentName(componentName),
@@ -20,6 +22,42 @@ HABaseDeviceType::HABaseDeviceType(
     }
 }
 
+bool HABaseDeviceType::setUniqueIdStr(char* pstr)
+{
+    if (_uniqueId) {
+        return false; // unique ID cannot be changed at runtime once it's set
+    }
+
+
+    char* dst = strdup(pstr); // include null terminator
+
+    _uniqueId = dst;
+
+    return true;
+}
+
+
+bool HABaseDeviceType::setNameUniqueIdStr(char* unic_prefix, const char* name, const char *uid)
+
+{  char str[80], *dst;
+
+    if (_uniqueId) {
+        return false; // unique ID cannot be changed at runtime once it's set
+    }
+
+   strcpy(str,unic_prefix);	
+   strcat(str,"_");	
+   strcat(str,uid);	
+
+   dst = strdup(str); // include null terminator
+
+   _uniqueId = dst;
+    _name = strdup(name);
+
+    return true;
+}
+
+
 void HABaseDeviceType::setAvailability(bool online)
 {
     _availability = (online ? AvailabilityOnline : AvailabilityOffline);
@@ -33,7 +71,7 @@ HAMqtt* HABaseDeviceType::mqtt()
 
 void HABaseDeviceType::subscribeTopic(
     const char* uniqueId,
-    const __FlashStringHelper* topic
+    const char* topic
 )
 {
     const uint16_t topicLength = HASerializer::calculateDataTopicLength(
@@ -118,35 +156,16 @@ void HABaseDeviceType::publishAvailability()
     }
 
     publishOnDataTopic(
-        AHATOFSTR(HAAvailabilityTopic),
+        HAAvailabilityTopic,
         _availability == AvailabilityOnline
-            ? AHATOFSTR(HAOnline)
-            : AHATOFSTR(HAOffline),
+            ? HAOnline
+            : HAOffline,
         true
     );
 }
 
 bool HABaseDeviceType::publishOnDataTopic(
-    const __FlashStringHelper* topic,
-    const __FlashStringHelper* payload,
-    bool retained
-)
-{
-    if (!payload) {
-        return false;
-    }
-
-    return publishOnDataTopic(
-        topic,
-        reinterpret_cast<const uint8_t*>(payload),
-        strlen_P(AHAFROMFSTR(payload)),
-        retained,
-        true
-    );
-}
-
-bool HABaseDeviceType::publishOnDataTopic(
-    const __FlashStringHelper* topic,
+    const char* topic,
     const char* payload,
     bool retained
 )
@@ -159,16 +178,17 @@ bool HABaseDeviceType::publishOnDataTopic(
         topic,
         reinterpret_cast<const uint8_t*>(payload),
         strlen(payload),
-        retained
+        retained,
+        true
     );
 }
 
 bool HABaseDeviceType::publishOnDataTopic(
-    const __FlashStringHelper* topic,
+    const char* topic,
     const uint8_t* payload,
     const uint16_t length,
     bool retained,
-    bool isProgmemData
+    bool isNullTerminated
 )
 {
     if (!payload) {
@@ -193,8 +213,8 @@ bool HABaseDeviceType::publishOnDataTopic(
     }
 
     if (mqtt()->beginPublish(fullTopic, length, retained)) {
-        if (isProgmemData) {
-            mqtt()->writePayload(AHATOFSTR(payload));
+        if (isNullTerminated) {
+            mqtt()->writePayload(reinterpret_cast<const char*>(payload));
         } else {
             mqtt()->writePayload(payload, length);
         }

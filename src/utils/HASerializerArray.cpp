@@ -1,5 +1,5 @@
 
-#include <Arduino.h>
+#include <cstring>
 
 #include "HASerializerArray.h"
 #include "HADictionary.h"
@@ -40,20 +40,20 @@ const char* HASerializerArray::getItem(const uint8_t index) const
 uint16_t HASerializerArray::calculateSize() const
 {
     uint16_t size =
-        strlen_P(HASerializerJsonArrayPrefix) +
-        strlen_P(HASerializerJsonArraySuffix);
+        strlen(HASerializerJsonArrayPrefix) +
+        strlen(HASerializerJsonArraySuffix);
 
     if (_itemsNb == 0) {
         return size;
     }
 
     // separators between elements
-    size += (_itemsNb - 1) * strlen_P(HASerializerJsonPropertiesSeparator);
+    size += (_itemsNb - 1) * strlen(HASerializerJsonPropertiesSeparator);
 
     for (uint8_t i = 0; i < _itemsNb; i++) {
         size +=
-            2 * strlen_P(HASerializerJsonEscapeChar)
-            + (_progmemItems ? strlen_P(_items[i]) : strlen(_items[i]));
+            2 * strlen(HASerializerJsonEscapeChar)
+            + (_progmemItems ? strlen(_items[i]) : strlen(_items[i]));
     }
 
     return size;
@@ -65,25 +65,25 @@ bool HASerializerArray::serialize(char* output) const
         return false;
     }
 
-    strcat_P(output, HASerializerJsonArrayPrefix);
+    strcat(output, HASerializerJsonArrayPrefix);
 
     for (uint8_t i = 0; i < _itemsNb; i++) {
         if (i > 0) {
-            strcat_P(output, HASerializerJsonPropertiesSeparator);
+            strcat(output, HASerializerJsonPropertiesSeparator);
         }
 
-        strcat_P(output, HASerializerJsonEscapeChar);
+        strcat(output, HASerializerJsonEscapeChar);
 
         if (_progmemItems) {
-            strcat_P(output, _items[i]);
+            strcat(output, _items[i]);
         } else {
             strcat(output, _items[i]);
         }
 
-        strcat_P(output, HASerializerJsonEscapeChar);
+        strcat(output, HASerializerJsonEscapeChar);
     }
 
-    strcat_P(output, HASerializerJsonArraySuffix);
+    strcat(output, HASerializerJsonArraySuffix);
     return true;
 }
 

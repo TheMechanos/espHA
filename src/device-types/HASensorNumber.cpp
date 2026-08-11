@@ -59,7 +59,7 @@ bool HASensorNumber::publishValue(const HANumeric& value)
     value.toStr(str);
 
     return publishOnDataTopic(
-        AHATOFSTR(HAStateTopic),
+        HAStateTopic,
         str,
         true
     );

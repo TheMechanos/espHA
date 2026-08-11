@@ -51,8 +51,8 @@ public:
         /// Subtype of the entry. It can be `FlagType`, `PropertyValueType` or `TopicType`.
         uint8_t subtype;
 
-        /// Pointer to the property name (progmem string).
-        const __FlashStringHelper* property;
+        /// Pointer to the property name.
+        const char* property;
 
         /// Pointer to the property value. The value type is determined by `subtype`.
         const void* value;
@@ -73,7 +73,7 @@ public:
      * @param objectId The unique ID of a device type that's going to publish the config.
      */
     static uint16_t calculateConfigTopicLength(
-        const __FlashStringHelper* component,
+        const char* component,
         const char* objectId
     );
 
@@ -87,7 +87,7 @@ public:
      */
     static bool generateConfigTopic(
         char* output,
-        const __FlashStringHelper* component,
+        const char* component,
         const char* objectId
     );
 
@@ -96,11 +96,11 @@ public:
      * The data topic has structure as follows: `[data prefix]/[device ID]_[objectId]/[topic]`
      *
      * @param objectId The unique ID of a device type that's going to publish the data.
-     * @param topic The topic name (progmem string).
+     * @param topic The topic name.
      */
     static uint16_t calculateDataTopicLength(
         const char* objectId,
-        const __FlashStringHelper* topic
+        const char* topic
     );
 
     /**
@@ -109,12 +109,12 @@ public:
      *
      * @param output Buffer where the topic will be written.
      * @param objectId The unique ID of a device type that's going to publish the data.
-     * @param topic The topic name (progmem string).
+     * @param topic The topic name.
      */
     static bool generateDataTopic(
         char* output,
         const char* objectId,
-        const __FlashStringHelper* topic
+        const char* topic
     );
 
     /**
@@ -124,12 +124,12 @@ public:
      *
      * @param actualTopic The actual topic to compare.
      * @param objectId The unique ID of a device type that may be the owner of the topic.
-     * @param topic The topic name (progmem string).
+     * @param topic The topic name.
      */
     static bool compareDataTopics(
         const char* actualTopic,
         const char* objectId,
-        const __FlashStringHelper* topic
+        const char* topic
     );
 
     /**
@@ -162,12 +162,12 @@ public:
     /**
      * Adds a new entry to the serialized with a type of `PropertyEntryType`.
      *
-     * @param property Pointer to the name of the property (progmem string).
+     * @param property Pointer to the name of the property.
      * @param value Pointer to the value that's being set.
      * @param valueType The type of the value that's passed to the method.
      */
     void set(
-        const __FlashStringHelper* property,
+        const char* property,
         const void* value,
         PropertyValueType valueType = ConstCharPropertyValue
     );
@@ -182,9 +182,9 @@ public:
     /**
      * Adds a new entry to the serialize with a type of `TopicEntryType`.
      *
-     * @param topic The topic name to add (progmem string).
+     * @param topic The topic name to add.
      */
-    void topic(const __FlashStringHelper* topic);
+    void topic(const char* topic);
 
     /**
      * Calculates the output size of the serialized JSON object.

@@ -1,8 +1,8 @@
 #ifndef AHA_HABASEDEVICETYPE_H
 #define AHA_HABASEDEVICETYPE_H
 
-#include <Arduino.h>
-#include "../ArduinoHADefines.h"
+#include <cstdint>
+#include "../espHADefines.h"
 
 class HAMqtt;
 class HASerializer;
@@ -29,11 +29,10 @@ public:
      *
      * @param componentName The name of the Home Assistant component (e.g. `binary_sensor`).
      *                      You can find all available component names in the Home Assistant documentation.
-     *                      The component name needs to be stored in the flash memory.
      * @param uniqueId The unique ID of the device type. It needs to be unique in a scope of the HADevice.
      */
     HABaseDeviceType(
-        const __FlashStringHelper* componentName,
+        const char* componentName,
         const char* uniqueId
     );
 
@@ -47,7 +46,7 @@ public:
      * Returns component name defined by the device type.
      * It's used for the MQTT discovery topic.
      */
-    inline const __FlashStringHelper* componentName() const
+    inline const char* componentName() const
         { return _componentName; }
 
     /**
@@ -61,6 +60,9 @@ public:
      */
     inline bool isOnline() const
         { return (_availability == AvailabilityOnline); }
+
+    bool setUniqueIdStr(char* pstr);
+    bool setNameUniqueIdStr(char* unic_prefix, const char* name, const char *uid);
 
     /**
      * Sets name of the device type that will be used as a label in the HA panel.
@@ -104,14 +106,6 @@ public:
      */
     virtual void setAvailability(bool online);
 
-#ifdef ARDUINOHA_TEST
-    inline HASerializer* getSerializer() const
-        { return _serializer; }
-
-    inline void buildSerializerTest()
-        { buildSerializer(); }
-#endif
-
 protected:
     /**
      * Returns instance of the HAMqtt class.
@@ -122,11 +116,11 @@ protected:
      * Subscribes to the given data topic.
      *
      * @param uniqueId THe unique ID of the device type assigned via the constructor.
-     * @param topic Topic to subscribe (progmem string).
+     * @param topic Topic to subscribe.
      */
     static void subscribeTopic(
         const char* uniqueId,
-        const __FlashStringHelper* topic
+        const char* topic
     );
 
     /**
@@ -174,27 +168,15 @@ protected:
     void publishAvailability();
 
     /**
-     * Publishes the given flash string on the data topic.
+     * Publishes the given null-terminated string on the data topic.
+     * Its length is computed with strlen(), so it must not contain embedded null bytes.
      *
-     * @param topic The topic to publish on (progmem string).
-     * @param payload The message's payload (progmem string).
-     * @param retained Specifies whether the message should be retained.
-     */
-    bool publishOnDataTopic(
-        const __FlashStringHelper* topic,
-        const __FlashStringHelper* payload,
-        bool retained = false
-    );
-
-    /**
-     * Publishes the given string on the data topic.
-     *
-     * @param topic The topic to publish on (progmem string).
+     * @param topic The topic to publish on.
      * @param payload The message's payload.
      * @param retained Specifies whether the message should be retained.
      */
     bool publishOnDataTopic(
-        const __FlashStringHelper* topic,
+        const char* topic,
         const char* payload,
         bool retained = false
     );
@@ -202,22 +184,24 @@ protected:
     /**
      * Publishes the given data on the data topic.
      *
-     * @param topic The topic to publish on (progmem string).
+     * @param topic The topic to publish on.
      * @param payload The message's payload.
      * @param length The length of the payload.
      * @param retained Specifies whether the message should be retained.
-     * @param isProgmemData Specifies whether the given data is stored in the flash memory.
+     * @param isNullTerminated Specifies whether `payload` is a null-terminated string (its
+     *                         length is then recomputed with strlen() instead of trusting
+     *                         `length`, matching the writePayload(const char*) overload).
      */
     bool publishOnDataTopic(
-        const __FlashStringHelper* topic,
+        const char* topic,
         const uint8_t* payload,
         const uint16_t length,
         bool retained = false,
-        bool isProgmemData = false
+        bool isNullTerminated = false
     );
 
     /// The component name that was assigned via the constructor.
-    const __FlashStringHelper* const _componentName;
+    const char* const _componentName;
 
     /// The unique ID that was assigned via the constructor.
     const char* _uniqueId;

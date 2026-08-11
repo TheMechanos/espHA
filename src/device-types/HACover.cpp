@@ -1,13 +1,15 @@
 #include "HACover.h"
 #ifndef EX_ARDUINOHA_COVER
 
+#include <cstring>
+
 #include "../HAMqtt.h"
 #include "../utils/HAUtils.h"
 #include "../utils/HANumeric.h"
 #include "../utils/HASerializer.h"
 
 HACover::HACover(const char* uniqueId, const Features features) :
-    HABaseDeviceType(AHATOFSTR(HAComponentCover), uniqueId),
+    HABaseDeviceType(HAComponentCover, uniqueId),
     _features(features),
     _currentState(StateUnknown),
     _currentPosition(DefaultPosition),
@@ -55,15 +57,15 @@ void HACover::buildSerializer()
     }
 
     _serializer = new HASerializer(this, 12); // 12 - max properties nb
-    _serializer->set(AHATOFSTR(HANameProperty), _name);
-    _serializer->set(AHATOFSTR(HAObjectIdProperty), _objectId);
+    _serializer->set(HANameProperty, _name);
+    _serializer->set(HAObjectIdProperty, _objectId);
     _serializer->set(HASerializer::WithUniqueId);
-    _serializer->set(AHATOFSTR(HADeviceClassProperty), _class);
-    _serializer->set(AHATOFSTR(HAIconProperty), _icon);
+    _serializer->set(HADeviceClassProperty, _class);
+    _serializer->set(HAIconProperty, _icon);
 
     if (_retain) {
         _serializer->set(
-            AHATOFSTR(HARetainProperty),
+            HARetainProperty,
             &_retain,
             HASerializer::BoolPropertyType
         );
@@ -71,7 +73,7 @@ void HACover::buildSerializer()
 
     if (_optimistic) {
         _serializer->set(
-            AHATOFSTR(HAOptimisticProperty),
+            HAOptimisticProperty,
             &_optimistic,
             HASerializer::BoolPropertyType
         );
@@ -79,11 +81,11 @@ void HACover::buildSerializer()
 
     _serializer->set(HASerializer::WithDevice);
     _serializer->set(HASerializer::WithAvailability);
-    _serializer->topic(AHATOFSTR(HAStateTopic));
-    _serializer->topic(AHATOFSTR(HACommandTopic));
+    _serializer->topic(HAStateTopic);
+    _serializer->topic(HACommandTopic);
 
     if (_features & PositionFeature) {
-        _serializer->topic(AHATOFSTR(HAPositionTopic));
+        _serializer->topic(HAPositionTopic);
     }
 }
 
@@ -101,7 +103,7 @@ void HACover::onMqttConnected()
         publishPosition(_currentPosition);
     }
 
-    subscribeTopic(uniqueId(), AHATOFSTR(HACommandTopic));
+    subscribeTopic(uniqueId(), HACommandTopic);
 }
 
 void HACover::onMqttMessage(
@@ -113,7 +115,7 @@ void HACover::onMqttMessage(
     if (HASerializer::compareDataTopics(
         topic,
         uniqueId(),
-        AHATOFSTR(HACommandTopic)
+        HACommandTopic
     )) {
         handleCommand(payload, length);
     }
@@ -125,33 +127,33 @@ bool HACover::publishState(CoverState state)
         return false;
     }
 
-    const __FlashStringHelper *stateStr = nullptr;
+    const char *stateStr = nullptr;
     switch (state) {
     case StateClosed:
-        stateStr = AHATOFSTR(HAClosedState);
+        stateStr = HAClosedState;
         break;
 
     case StateClosing:
-        stateStr = AHATOFSTR(HAClosingState);
+        stateStr = HAClosingState;
         break;
 
     case StateOpen:
-        stateStr = AHATOFSTR(HAOpenState);
+        stateStr = HAOpenState;
         break;
 
     case StateOpening:
-        stateStr = AHATOFSTR(HAOpeningState);
+        stateStr = HAOpeningState;
         break;
 
     case StateStopped:
-        stateStr = AHATOFSTR(HAStoppedState);
+        stateStr = HAStoppedState;
         break;
 
     default:
         return false;
     }
 
-    return publishOnDataTopic(AHATOFSTR(HAStateTopic), stateStr, true);
+    return publishOnDataTopic(HAStateTopic, stateStr, true);
 }
 
 bool HACover::publishPosition(int16_t position)
@@ -163,7 +165,7 @@ bool HACover::publishPosition(int16_t position)
     char str[6 + 1] = {0}; // int16_t digits with null terminator
     HANumeric(position, 0).toStr(str);
 
-    return publishOnDataTopic(AHATOFSTR(HAPositionTopic), str, true);
+    return publishOnDataTopic(HAPositionTopic, str, true);
 }
 
 void HACover::handleCommand(const uint8_t* cmd, const uint16_t length)
@@ -172,11 +174,11 @@ void HACover::handleCommand(const uint8_t* cmd, const uint16_t length)
         return;
     }
 
-    if (memcmp_P(cmd, HACloseCommand, length) == 0) {
+    if (memcmp(cmd, HACloseCommand, length) == 0) {
         _commandCallback(CommandClose, this);
-    } else if (memcmp_P(cmd, HAOpenCommand, length) == 0) {
+    } else if (memcmp(cmd, HAOpenCommand, length) == 0) {
         _commandCallback(CommandOpen, this);
-    } else if (memcmp_P(cmd, HAStopCommand, length) == 0) {
+    } else if (memcmp(cmd, HAStopCommand, length) == 0) {
         _commandCallback(CommandStop, this);
     }
 }
