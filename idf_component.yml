@@ -1,0 +1,14 @@
+version: 1.0.1
+maintainers:
+  - Sebastian Koczur <themechanos@gmail.com>
+description: >-
+  Home Assistant MQTT discovery library for ESP-IDF
+repository: https://github.com/TheMechanos/espHA.git
+
+dependencies:
+  idf:
+    version: ">=5.0"
+  espressif/mqtt:
+    version: "*"
+    rules:
+      - if: "idf_version >=6.0"
