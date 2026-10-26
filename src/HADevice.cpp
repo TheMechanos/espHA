@@ -41,7 +41,7 @@ HADevice::~HADevice()
     delete _serializer;
 
     if (_availabilityTopic) {
-        delete _availabilityTopic;
+        delete[] _availabilityTopic;
     }
 
     if (_ownsUniqueId) {

@@ -49,7 +49,7 @@ HADeviceTrigger::HADeviceTrigger(TriggerType type, TriggerSubtype subtype) :
 HADeviceTrigger::~HADeviceTrigger()
 {
     if (_uniqueId) {
-        delete _uniqueId;
+        delete[] _uniqueId;
     }
 }
 

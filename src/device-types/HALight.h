@@ -44,12 +44,8 @@ public:
         RGBColor(uint8_t r, uint8_t g, uint8_t b) :
             red(r), green(g), blue(b), isSet(true) { }
 
-        void operator= (const RGBColor& a) {
-            red = a.red;
-            green = a.green;
-            blue = a.blue;
-            isSet = a.isSet;
-        }
+        RGBColor(const RGBColor& a) = default;
+        RGBColor& operator= (const RGBColor& a) = default;
 
         bool operator== (const RGBColor& a) const {
             return (

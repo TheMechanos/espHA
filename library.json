@@ -1,6 +1,6 @@
 {
   "name": "espHA",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Home Assistant MQTT discovery library for ESP-IDF",
   "keywords": "home assistant, mqtt, iot, esp-idf",
   "repository": {

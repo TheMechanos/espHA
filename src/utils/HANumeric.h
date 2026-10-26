@@ -104,7 +104,19 @@ public:
     HANumeric(const int value, const uint8_t precision);
 #endif
 
-    void operator= (const HANumeric& a) {
+    /**
+     * Copies the given number. An unset source results in the reset() state,
+     * so leftover value or precision of an unset number are not carried over.
+     */
+    HANumeric(const HANumeric& a) :
+        _isSet(a.isSet()),
+        _value(a.isSet() ? a.getBaseValue() : 0),
+        _precision(a.isSet() ? a.getPrecision() : 0)
+    {
+
+    }
+
+    HANumeric& operator= (const HANumeric& a) {
         if (!a.isSet()) {
             reset();
         } else {
@@ -112,6 +124,8 @@ public:
             _value = a.getBaseValue();
             _precision = a.getPrecision();
         }
+
+        return *this;
     }
 
     bool operator== (const HANumeric& a) const {
