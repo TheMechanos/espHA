@@ -67,22 +67,16 @@ no `IPAddress` overload, since that's an Arduino type this library no longer dep
 `HAFan`, `HAHVAC`, `HALight`, `HALock`, `HANumber`, `HAScene`, `HASelect`, `HASensor`,
 `HASensorNumber`, `HASwitch`, `HATagScanner`, `HAText`.
 
-Each type can be compiled out to save flash/RAM via `EX_ARDUINOHA_*` defines in
-`src/espHADefines.h` (e.g. `#define EX_ARDUINOHA_CAMERA` if you don't use the camera entity).
+Each type can be compiled out to save flash/RAM in `idf.py menuconfig` → Component config →
+espHA → Device types (e.g. `CONFIG_ESPHA_DISABLE_CAMERA_FEATURE=y` in `sdkconfig.defaults` if
+you don't use the camera entity).
 
 ## Debug logging
 
 Debug output goes through the ESP-IDF logging system under the `"AHA"` tag, not through any
-Arduino `Serial` object. Enable it with:
-
-```cpp
-#define ESPHA_DEBUG
-#include <espHA.h>
-```
-
-placed before the include in *one* translation unit (or add it as a project-wide compile
-definition), then control verbosity as usual — `idf.py menuconfig` (Component config → Log
-output) or at runtime with `esp_log_level_set("AHA", ESP_LOG_DEBUG)`.
+Arduino `Serial` object. Enable it in `idf.py menuconfig` → Component config → espHA →
+Enable debug logging (`CONFIG_ESPHA_DEBUG=y`), then control verbosity as usual — Component
+config → Log output, or at runtime with `esp_log_level_set("AHA", ESP_LOG_DEBUG)`.
 
 ## What changed vs. upstream ArduinoHA
 

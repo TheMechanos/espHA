@@ -1,10 +1,9 @@
-#ifndef AHA_HAHVAC_H
-#define AHA_HAHVAC_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 #include "../utils/HANumeric.h"
 
-#ifndef EX_ARDUINOHA_HVAC
+#ifndef CONFIG_ESPHA_DISABLE_HVAC_FEATURE
 
 #define _SET_CURRENT_TEMPERATURE_OVERLOAD(type) \
     /** @overload */ \
@@ -700,5 +699,4 @@ private:
     HAHVAC_CALLBACK_TARGET_TEMP(_targetTemperatureCallback);
 };
 
-#endif
 #endif

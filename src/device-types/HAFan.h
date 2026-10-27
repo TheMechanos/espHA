@@ -1,10 +1,9 @@
-#ifndef AHA_HAFAN_H
-#define AHA_HAFAN_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 #include "../utils/HANumeric.h"
 
-#ifndef EX_ARDUINOHA_FAN
+#ifndef CONFIG_ESPHA_DISABLE_FAN_FEATURE
 
 #define HAFAN_STATE_CALLBACK(name) void (*name)(bool state, HAFan* sender)
 #define HAFAN_SPEED_CALLBACK(name) void (*name)(uint16_t speed, HAFan* sender)
@@ -241,5 +240,4 @@ private:
     HAFAN_SPEED_CALLBACK(_speedCallback);
 };
 
-#endif
 #endif

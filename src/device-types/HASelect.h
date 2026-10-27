@@ -1,9 +1,8 @@
-#ifndef AHA_HASELECT_H
-#define AHA_HASELECT_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_SELECT
+#ifndef CONFIG_ESPHA_DISABLE_SELECT_FEATURE
 
 class HASerializerArray;
 
@@ -153,5 +152,4 @@ private:
     HASELECT_CALLBACK(_commandCallback);
 };
 
-#endif
 #endif

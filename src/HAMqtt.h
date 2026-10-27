@@ -1,5 +1,4 @@
-#ifndef AHA_HAMQTT_H
-#define AHA_HAMQTT_H
+#pragma once
 
 #include <string>
 #include <cstdint>
@@ -461,5 +460,3 @@ private:
     /// Payload bytes received so far for the message in _incomingTopic.
     std::string _incomingPayload;
 };
-
-#endif

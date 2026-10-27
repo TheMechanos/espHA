@@ -1,5 +1,5 @@
 #include "HAHVAC.h"
-#ifndef EX_ARDUINOHA_HVAC
+#ifndef CONFIG_ESPHA_DISABLE_HVAC_FEATURE
 
 #include <cstring>
 

@@ -1,5 +1,5 @@
 #include "HAText.h"
-#ifndef EX_ARDUINOHA_TEXT
+#ifndef CONFIG_ESPHA_DISABLE_TEXT_FEATURE
 
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"

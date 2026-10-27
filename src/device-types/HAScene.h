@@ -1,9 +1,8 @@
-#ifndef AHA_HASCENE_H
-#define AHA_HASCENE_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_SCENE
+#ifndef CONFIG_ESPHA_DISABLE_SCENE_FEATURE
 
 #define HASCENE_CALLBACK(name) void (*name)(HAScene* sender)
 
@@ -69,5 +68,4 @@ private:
     HASCENE_CALLBACK(_commandCallback);
 };
 
-#endif
 #endif

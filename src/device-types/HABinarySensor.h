@@ -1,10 +1,9 @@
-#ifndef AHA_HABINARYSENSOR_H
-#define AHA_HABINARYSENSOR_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 #include "../utils/HANumeric.h"
 
-#ifndef EX_ARDUINOHA_BINARY_SENSOR
+#ifndef CONFIG_ESPHA_DISABLE_BINARY_SENSOR_FEATURE
 
 /**
  * HABinarySensor represents a binary sensor that allows publishing on/off state to the Home Assistant panel.
@@ -99,5 +98,4 @@ private:
 
 };
 
-#endif
 #endif

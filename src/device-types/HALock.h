@@ -1,9 +1,8 @@
-#ifndef AHA_HALOCK_H
-#define AHA_HALOCK_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_LOCK
+#ifndef CONFIG_ESPHA_DISABLE_LOCK_FEATURE
 
 #define HALOCK_CALLBACK(name) void (*name)(LockCommand command, HALock* sender)
 
@@ -144,5 +143,4 @@ private:
     HALOCK_CALLBACK(_commandCallback);
 };
 
-#endif
 #endif

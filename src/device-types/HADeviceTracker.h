@@ -1,9 +1,8 @@
-#ifndef AHA_HADEVICETRACKER_H
-#define AHA_HADEVICETRACKER_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_DEVICE_TRACKER
+#ifndef CONFIG_ESPHA_DISABLE_DEVICE_TRACKER_FEATURE
 
 /**
  * HADeviceTracker allows to implement a custom device's tracker.
@@ -110,5 +109,4 @@ private:
     TrackerState _currentState;
 };
 
-#endif
 #endif

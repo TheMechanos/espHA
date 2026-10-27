@@ -1,9 +1,8 @@
-#ifndef AHA_HABUTTON_H
-#define AHA_HABUTTON_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_BUTTON
+#ifndef CONFIG_ESPHA_DISABLE_BUTTON_FEATURE
 
 #define HABUTTON_CALLBACK(name) void (*name)(HAButton* sender)
 
@@ -82,5 +81,4 @@ private:
     HABUTTON_CALLBACK(_commandCallback);
 };
 
-#endif
 #endif

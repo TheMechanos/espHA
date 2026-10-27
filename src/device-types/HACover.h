@@ -1,9 +1,8 @@
-#ifndef AHA_HACOVER_H
-#define AHA_HACOVER_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_COVER
+#ifndef CONFIG_ESPHA_DISABLE_COVER_FEATURE
 
 #define HACOVER_CALLBACK(name) void (*name)(CoverCommand cmd, HACover* sender)
 
@@ -206,5 +205,4 @@ private:
     HACOVER_CALLBACK(_commandCallback);
 };
 
-#endif
 #endif

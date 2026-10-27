@@ -1,5 +1,5 @@
 #include "HAScene.h"
-#ifndef EX_ARDUINOHA_SCENE
+#ifndef CONFIG_ESPHA_DISABLE_SCENE_FEATURE
 
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"

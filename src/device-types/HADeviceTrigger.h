@@ -1,9 +1,8 @@
-#ifndef AHA_HADEVICETRIGGER_H
-#define AHA_HADEVICETRIGGER_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_DEVICE_TRIGGER
+#ifndef CONFIG_ESPHA_DISABLE_DEVICE_TRIGGER_FEATURE
 
 /**
  * HADeviceTrigger allows to a custom trigger that can be used in the Home Assistant automation.
@@ -172,5 +171,4 @@ private:
     bool _isProgmemSubtype;
 };
 
-#endif
 #endif

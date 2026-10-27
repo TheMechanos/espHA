@@ -1,9 +1,8 @@
-#ifndef AHA_HATAGSCANNER_H
-#define AHA_HATAGSCANNER_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_TAG_SCANNER
+#ifndef CONFIG_ESPHA_DISABLE_TAG_SCANNER_FEATURE
 
 /**
  * HATagScanner allow to produce scan events that can be used in the HA automation. 
@@ -34,5 +33,4 @@ protected:
     virtual void onMqttConnected() override;
 };
 
-#endif
 #endif

@@ -1,9 +1,8 @@
-#ifndef AHA_HASWITCH_H
-#define AHA_HASWITCH_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_SWITCH
+#ifndef CONFIG_ESPHA_DISABLE_SWITCH_FEATURE
 
 #define HASWITCH_CALLBACK(name) void (*name)(bool state, HASwitch* sender)
 
@@ -146,5 +145,4 @@ private:
     HASWITCH_CALLBACK(_commandCallback);
 };
 
-#endif
 #endif

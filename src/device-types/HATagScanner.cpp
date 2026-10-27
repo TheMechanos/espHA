@@ -1,5 +1,5 @@
 #include "HATagScanner.h"
-#ifndef EX_ARDUINOHA_TAG_SCANNER
+#ifndef CONFIG_ESPHA_DISABLE_TAG_SCANNER_FEATURE
 
 #include <cstring>
 

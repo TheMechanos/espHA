@@ -1,10 +1,9 @@
-#ifndef AHA_HASENSOR_H
-#define AHA_HASENSOR_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 #include "../utils/HANumeric.h"
 
-#ifndef EX_ARDUINOHA_SENSOR
+#ifndef CONFIG_ESPHA_DISABLE_SENSOR_FEATURE
 
 /**
  * HASensor allows to publish textual sensor values that will be displayed in the HA panel.
@@ -126,5 +125,4 @@ private:
     HANumeric _expireAfter;
 };
 
-#endif
 #endif

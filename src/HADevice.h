@@ -1,5 +1,4 @@
-#ifndef AHA_HADEVICE_H
-#define AHA_HADEVICE_H
+#pragma once
 
 #include <cstdint>
 
@@ -181,5 +180,3 @@ private:
     /// Specifies whether extended unique IDs feature is enabled.
     bool _extendedUniqueIds;
 };
-
-#endif

@@ -71,12 +71,12 @@ void HAMqtt::mqttEventHandler(void* handlerArgs, const char* base, int32_t event
 
     switch (static_cast<esp_mqtt_event_id_t>(eventId)) {
     case MQTT_EVENT_CONNECTED:
-        ESPHA_DEBUG_LOG("MQTT_EVENT_CONNECTED");
+        ESPHA_LOGD("MQTT_EVENT_CONNECTED");
         self->_mqttConnected = true;
         break;
 
     case MQTT_EVENT_DISCONNECTED:
-        ESPHA_DEBUG_LOG("MQTT_EVENT_DISCONNECTED");
+        ESPHA_LOGD("MQTT_EVENT_DISCONNECTED");
         self->_mqttConnected = false;
         break;
 
@@ -115,7 +115,7 @@ void HAMqtt::handleIncomingMessage(void* eventData)
     }
 
     if (_incomingPayload.length() > UINT16_MAX) {
-        ESPHA_DEBUG_LOG("incoming message too long, dropping");
+        ESPHA_LOGD("incoming message too long, dropping");
         return;
     }
 
@@ -133,15 +133,15 @@ bool HAMqtt::begin(
     const char* password
 )
 {
-    ESPHA_DEBUG_LOG("init server %s:%u", serverHostname, serverPort);
+    ESPHA_LOGD("init server %s:%u", serverHostname, serverPort);
 
     if (_device.getUniqueId() == nullptr) {
-        ESPHA_DEBUG_LOG("init failed: missing device unique ID");
+        ESPHA_LOGD("init failed: missing device unique ID");
         return false;
     }
 
     if (_initialized) {
-        ESPHA_DEBUG_LOG("already initialized");
+        ESPHA_LOGD("already initialized");
         return false;
     }
 
@@ -206,7 +206,7 @@ bool HAMqtt::begin(
 
     _mqttClient = esp_mqtt_client_init(&config);
     if (_mqttClient == nullptr) {
-        ESPHA_DEBUG_LOG("esp_mqtt_client_init failed");
+        ESPHA_LOGD("esp_mqtt_client_init failed");
         return false;
     }
 
@@ -218,7 +218,7 @@ bool HAMqtt::begin(
     );
 
     if (esp_mqtt_client_start(_mqttClient) != ESP_OK) {
-        ESPHA_DEBUG_LOG("esp_mqtt_client_start failed");
+        ESPHA_LOGD("esp_mqtt_client_start failed");
         esp_mqtt_client_destroy(_mqttClient);
         _mqttClient = nullptr;
         return false;
@@ -243,7 +243,7 @@ bool HAMqtt::disconnect()
         return false;
     }
 
-    ESPHA_DEBUG_LOG("disconnecting");
+    ESPHA_LOGD("disconnecting");
 
     _initialized = false;
     _lastConnectionActivity = 0;
@@ -317,7 +317,7 @@ bool HAMqtt::publish(const char* topic, const char* payload, bool retained)
         return false;
     }
 
-    ESPHA_DEBUG_LOG("publishing %s, len: %u", topic, static_cast<unsigned>(strlen(payload)));
+    ESPHA_LOGD("publishing %s, len: %u", topic, static_cast<unsigned>(strlen(payload)));
 
     return esp_mqtt_client_publish(
         _mqttClient,
@@ -335,9 +335,7 @@ bool HAMqtt::beginPublish(
     bool retained
 )
 {
-#if ESPHA_DEBUG_LEV > 3
-    ESPHA_DEBUG_LOG("begin publish %s, len: %u", topic, static_cast<unsigned>(payloadLength));
-#endif
+    ESPHA_LOGD("begin publish %s, len: %u", topic, static_cast<unsigned>(payloadLength));
 
     if (!isConnected()) {
         return false;
@@ -388,14 +386,14 @@ bool HAMqtt::endPublish()
 
 bool HAMqtt::subscribe(const char* topic)
 {
-    ESPHA_DEBUG_LOG("subscribing %s", topic);
+    ESPHA_LOGD("subscribing %s", topic);
 
     return esp_mqtt_client_subscribe(_mqttClient, topic, 0) != -1;
 }
 
 void HAMqtt::processMessage(const char* topic, const uint8_t* payload, uint16_t length)
 {
-    ESPHA_DEBUG_LOG("received call %s, len: %u", topic, static_cast<unsigned>(length));
+    ESPHA_LOGD("received call %s, len: %u", topic, static_cast<unsigned>(length));
 
     if (_messageCallback) {
         _messageCallback(topic, payload, length);
@@ -408,7 +406,7 @@ void HAMqtt::processMessage(const char* topic, const uint8_t* payload, uint16_t 
 
 void HAMqtt::onConnectedLogic()
 {
-    ESPHA_DEBUG_LOG("onConnectedLogic");
+    ESPHA_LOGD("onConnectedLogic");
     if (_connectedCallback) {
         _connectedCallback();
     }
@@ -431,17 +429,17 @@ void HAMqtt::setState(ConnectionState state)
     ConnectionState previousState = _currentState;
     _currentState = state;
 
-    ESPHA_DEBUG_LOG(
+    ESPHA_LOGD(
         "MQTT state changed to %d, previous state: %d",
         static_cast<int>(_currentState),
         static_cast<int>(previousState)
     );
 
     if (_currentState == StateConnected) {
-        ESPHA_DEBUG_LOG("MQTT connected");
+        ESPHA_LOGD("MQTT connected");
         onConnectedLogic();
     } else if (previousState == StateConnected && _currentState != StateConnected) {
-        ESPHA_DEBUG_LOG("MQTT disconnected");
+        ESPHA_LOGD("MQTT disconnected");
 
         if (_disconnectedCallback) {
             _disconnectedCallback();

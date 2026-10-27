@@ -1,5 +1,5 @@
 #include "HALight.h"
-#ifndef EX_ARDUINOHA_LIGHT
+#ifndef CONFIG_ESPHA_DISABLE_LIGHT_FEATURE
 
 #include <cstring>
 

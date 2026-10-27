@@ -1,5 +1,5 @@
 #include "HACamera.h"
-#ifndef EX_ARDUINOHA_CAMERA
+#ifndef CONFIG_ESPHA_DISABLE_CAMERA_FEATURE
 
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"

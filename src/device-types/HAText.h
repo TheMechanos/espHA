@@ -1,9 +1,8 @@
-#ifndef AHA_HAText_H
-#define AHA_HAText_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_TEXT
+#ifndef CONFIG_ESPHA_DISABLE_TEXT_FEATURE
 
 #define HAText_CALLBACK(name) void (*name)(HAText* sender)
 
@@ -77,5 +76,4 @@ private:
 
 };
 
-#endif
 #endif

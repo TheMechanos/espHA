@@ -1,5 +1,5 @@
 #include "HANumber.h"
-#ifndef EX_ARDUINOHA_NUMBER
+#ifndef CONFIG_ESPHA_DISABLE_NUMBER_FEATURE
 
 #include <cstring>
 

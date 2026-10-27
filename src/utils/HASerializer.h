@@ -1,6 +1,5 @@
 
-#ifndef AHA_SERIALIZER_H
-#define AHA_SERIALIZER_H
+#pragma once
 
 #include <stdint.h>
 
@@ -266,5 +265,3 @@ private:
      */
     bool flushFlag(const SerializerEntry* entry) const;
 };
-
-#endif

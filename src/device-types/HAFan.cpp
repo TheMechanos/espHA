@@ -1,5 +1,5 @@
 #include "HAFan.h"
-#ifndef EX_ARDUINOHA_FAN
+#ifndef CONFIG_ESPHA_DISABLE_FAN_FEATURE
 
 #include <cstring>
 

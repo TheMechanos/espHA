@@ -1,5 +1,4 @@
-#ifndef AHA_HABASEDEVICETYPE_H
-#define AHA_HABASEDEVICETYPE_H
+#pragma once
 
 #include <cstdint>
 #include "../espHADefines.h"
@@ -226,5 +225,3 @@ private:
     Availability _availability;
     friend class HAMqtt;
 };
-
-#endif

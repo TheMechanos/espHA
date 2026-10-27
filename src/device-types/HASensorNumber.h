@@ -1,9 +1,8 @@
-#ifndef AHA_HASENSORNUMBER_H
-#define AHA_HASENSORNUMBER_H
+#pragma once
 
 #include "HASensor.h"
 
-#ifndef EX_ARDUINOHA_SENSOR
+#ifndef CONFIG_ESPHA_DISABLE_SENSOR_FEATURE
 
 #define _SET_VALUE_OVERLOAD(type) \
     /** @overload */ \
@@ -103,5 +102,4 @@ private:
     HANumeric _currentValue;
 };
 
-#endif
 #endif

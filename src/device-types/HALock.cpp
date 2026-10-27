@@ -1,5 +1,5 @@
 #include "HALock.h"
-#ifndef EX_ARDUINOHA_LOCK
+#ifndef CONFIG_ESPHA_DISABLE_LOCK_FEATURE
 
 #include <cstring>
 

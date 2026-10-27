@@ -1,5 +1,5 @@
 #include "HASensorNumber.h"
-#ifndef EX_ARDUINOHA_SENSOR
+#ifndef CONFIG_ESPHA_DISABLE_SENSOR_FEATURE
 
 #include "../utils/HASerializer.h"
 

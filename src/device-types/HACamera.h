@@ -1,9 +1,8 @@
-#ifndef AHA_HACAMERA_H
-#define AHA_HACAMERA_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 
-#ifndef EX_ARDUINOHA_CAMERA
+#ifndef CONFIG_ESPHA_DISABLE_CAMERA_FEATURE
 
 /**
  * HACamera allows to display an image in the Home Assistant panel.
@@ -73,5 +72,4 @@ private:
     
 };
 
-#endif
 #endif

@@ -1,0 +1,85 @@
+menu "espHA"
+
+    config ESPHA_DEBUG
+        bool "Enable debug logging"
+        default n
+        help
+            Turns on debug logging of the espHA core, emitted through the ESP-IDF
+            logging system (esp_log.h) under the "AHA" tag. Control the verbosity
+            via Component config -> Log output or at runtime with
+            esp_log_level_set("AHA", ESP_LOG_DEBUG).
+
+    menu "Device types"
+        comment "Disable unused device types to save flash and RAM"
+
+        config ESPHA_DISABLE_BINARY_SENSOR_FEATURE
+            bool "Disable HABinarySensor"
+            default n
+
+        config ESPHA_DISABLE_BUTTON_FEATURE
+            bool "Disable HAButton"
+            default n
+
+        config ESPHA_DISABLE_CAMERA_FEATURE
+            bool "Disable HACamera"
+            default n
+
+        config ESPHA_DISABLE_COVER_FEATURE
+            bool "Disable HACover"
+            default n
+
+        config ESPHA_DISABLE_DEVICE_TRACKER_FEATURE
+            bool "Disable HADeviceTracker"
+            default n
+
+        config ESPHA_DISABLE_DEVICE_TRIGGER_FEATURE
+            bool "Disable HADeviceTrigger"
+            default n
+
+        config ESPHA_DISABLE_FAN_FEATURE
+            bool "Disable HAFan"
+            default n
+
+        config ESPHA_DISABLE_HVAC_FEATURE
+            bool "Disable HAHVAC"
+            default n
+
+        config ESPHA_DISABLE_LIGHT_FEATURE
+            bool "Disable HALight"
+            default n
+
+        config ESPHA_DISABLE_LOCK_FEATURE
+            bool "Disable HALock"
+            default n
+
+        config ESPHA_DISABLE_NUMBER_FEATURE
+            bool "Disable HANumber"
+            default n
+
+        config ESPHA_DISABLE_SCENE_FEATURE
+            bool "Disable HAScene"
+            default n
+
+        config ESPHA_DISABLE_SELECT_FEATURE
+            bool "Disable HASelect"
+            default n
+
+        config ESPHA_DISABLE_SENSOR_FEATURE
+            bool "Disable HASensor and HASensorNumber"
+            default n
+
+        config ESPHA_DISABLE_SWITCH_FEATURE
+            bool "Disable HASwitch"
+            default n
+
+        config ESPHA_DISABLE_TAG_SCANNER_FEATURE
+            bool "Disable HATagScanner"
+            default n
+
+        config ESPHA_DISABLE_TEXT_FEATURE
+            bool "Disable HAText"
+            default n
+
+    endmenu
+
+endmenu

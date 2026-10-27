@@ -1,5 +1,5 @@
 #include "HADeviceTracker.h"
-#ifndef EX_ARDUINOHA_DEVICE_TRACKER
+#ifndef CONFIG_ESPHA_DISABLE_DEVICE_TRACKER_FEATURE
 
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"

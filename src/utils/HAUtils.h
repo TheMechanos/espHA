@@ -1,5 +1,4 @@
-#ifndef AHA_HAUTILS_H
-#define AHA_HAUTILS_H
+#pragma once
 
 #include <stdint.h>
 
@@ -48,5 +47,3 @@ public:
         const uint16_t length
     );
 };
-
-#endif

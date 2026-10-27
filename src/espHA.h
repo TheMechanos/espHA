@@ -1,5 +1,4 @@
-#ifndef AHA_ESPHA_H
-#define AHA_ESPHA_H
+#pragma once
 
 /**
  * espHA - a Home Assistant MQTT discovery library for ESP-IDF.
@@ -10,8 +9,8 @@
  * only needs to notice connection-state transitions rather than drive any blocking I/O.
  *
  * Include this single header to pull in every device type (HASwitch, HASensor, HALight, ...).
- * Individual device types can be compiled out via the EX_ARDUINOHA_* defines documented in
- * espHADefines.h, and ESPHA_DEBUG there enables verbose logging under the "AHA" tag.
+ * Individual device types can be compiled out via the CONFIG_ESPHA_DISABLE_*_FEATURE Kconfig
+ * options, and CONFIG_ESPHA_DEBUG enables verbose logging under the "AHA" tag.
  */
 
 #include "HADevice.h"
@@ -36,5 +35,3 @@
 #include "device-types/HAText.h"
 #include "utils/HAUtils.h"
 #include "utils/HANumeric.h"
-
-#endif

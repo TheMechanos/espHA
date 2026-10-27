@@ -1,6 +1,5 @@
 
-#ifndef AHA_NUMERIC_H
-#define AHA_NUMERIC_H
+#pragma once
 
 #include <stdint.h>
 #include "../espHADefines.h"
@@ -244,5 +243,3 @@ private:
 
     explicit HANumeric(const int64_t value);
 };
-
-#endif

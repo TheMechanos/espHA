@@ -1,10 +1,9 @@
-#ifndef AHA_HALIGHT_H
-#define AHA_HALIGHT_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 #include "../utils/HANumeric.h"
 
-#ifndef EX_ARDUINOHA_LIGHT
+#ifndef CONFIG_ESPHA_DISABLE_LIGHT_FEATURE
 
 #define HALIGHT_STATE_CALLBACK(name) void (*name)(bool state, HALight* sender)
 #define HALIGHT_BRIGHTNESS_CALLBACK(name) void (*name)(uint8_t brightness, HALight* sender)
@@ -413,5 +412,4 @@ private:
     HALIGHT_RGB_COLOR_CALLBACK(_rgbColorCallback);
 };
 
-#endif
 #endif

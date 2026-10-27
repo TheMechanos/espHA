@@ -1,5 +1,5 @@
 #include "HACover.h"
-#ifndef EX_ARDUINOHA_COVER
+#ifndef CONFIG_ESPHA_DISABLE_COVER_FEATURE
 
 #include <cstring>
 

@@ -1,5 +1,5 @@
 #include "HASelect.h"
-#ifndef EX_ARDUINOHA_SELECT
+#ifndef CONFIG_ESPHA_DISABLE_SELECT_FEATURE
 
 #include <cstring>
 

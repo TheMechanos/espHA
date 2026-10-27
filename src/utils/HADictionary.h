@@ -1,5 +1,4 @@
-#ifndef AHA_HADICTIONARY_H
-#define AHA_HADICTIONARY_H
+#pragma once
 
 // components
 extern const char HAComponentBinarySensor[];
@@ -199,5 +198,3 @@ extern const char HAValueTemplateFloatP2[];
 extern const char HAValueTemplateFloatP3[];
 extern const char HATemperatureUnitC[];
 extern const char HATemperatureUnitF[];
-
-#endif

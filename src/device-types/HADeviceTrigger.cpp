@@ -1,5 +1,5 @@
 #include "HADeviceTrigger.h"
-#ifndef EX_ARDUINOHA_DEVICE_TRIGGER
+#ifndef CONFIG_ESPHA_DISABLE_DEVICE_TRIGGER_FEATURE
 
 #include <cstring>
 

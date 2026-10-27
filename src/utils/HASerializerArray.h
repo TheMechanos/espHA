@@ -1,6 +1,5 @@
 
-#ifndef AHA_SERIALIZERARRAY_H
-#define AHA_SERIALIZERARRAY_H
+#pragma once
 
 #include <stdint.h>
 
@@ -77,5 +76,3 @@ private:
     /// Pointer to the array elements.
     ItemType* _items;
 };
-
-#endif

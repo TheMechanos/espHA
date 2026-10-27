@@ -1,10 +1,9 @@
-#ifndef AHA_HANUMBER_H
-#define AHA_HANUMBER_H
+#pragma once
 
 #include "HABaseDeviceType.h"
 #include "../utils/HANumeric.h"
 
-#ifndef EX_ARDUINOHA_NUMBER
+#ifndef CONFIG_ESPHA_DISABLE_NUMBER_FEATURE
 
 #define _SET_STATE_OVERLOAD(type) \
     /** @overload */ \
@@ -259,5 +258,4 @@ private:
     HANUMBER_CALLBACK(_commandCallback);
 };
 
-#endif
 #endif

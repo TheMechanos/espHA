@@ -1,5 +1,5 @@
 #include "HAButton.h"
-#ifndef EX_ARDUINOHA_BUTTON
+#ifndef CONFIG_ESPHA_DISABLE_BUTTON_FEATURE
 
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"

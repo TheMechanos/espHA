@@ -1,5 +1,5 @@
 #include "HASwitch.h"
-#ifndef EX_ARDUINOHA_SWITCH
+#ifndef CONFIG_ESPHA_DISABLE_SWITCH_FEATURE
 
 #include <cstring>
 

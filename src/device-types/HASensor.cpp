@@ -1,5 +1,5 @@
 #include "HASensor.h"
-#ifndef EX_ARDUINOHA_SENSOR
+#ifndef CONFIG_ESPHA_DISABLE_SENSOR_FEATURE
 
 #include "../HAMqtt.h"
 #include "../utils/HASerializer.h"
