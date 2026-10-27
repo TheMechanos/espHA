@@ -14,6 +14,8 @@ HABaseDeviceType::HABaseDeviceType(
     _uniqueId(uniqueId),
     _name(nullptr),
     _objectId(nullptr),
+    _entityCategory(EntityCategoryNone),
+    _enabledByDefault(true),
     _serializer(nullptr),
     _availability(AvailabilityDefault)
 {
@@ -103,6 +105,20 @@ void HABaseDeviceType::onMqttMessage(
     (void)topic;
     (void)payload;
     (void)length;
+}
+
+const char* HABaseDeviceType::entityCategoryStr() const
+{
+    switch (_entityCategory) {
+    case EntityCategoryConfig:
+        return HAEntityCategoryConfig;
+
+    case EntityCategoryDiagnostic:
+        return HAEntityCategoryDiagnostic;
+
+    default:
+        return nullptr;
+    }
 }
 
 void HABaseDeviceType::destroySerializer()

@@ -71,6 +71,14 @@ Each type can be compiled out to save flash/RAM in `idf.py menuconfig` → Compo
 espHA → Device types (e.g. `CONFIG_ESPHA_DISABLE_CAMERA_FEATURE=y` in `sdkconfig.defaults` if
 you don't use the camera entity).
 
+Every entity type (all of the above except `HADeviceTrigger` and `HATagScanner`) also supports:
+
+- `setEntityCategory(HABaseDeviceType::EntityCategoryDiagnostic)` / `EntityCategoryConfig` —
+  groups the entity under "Diagnostic" / "Configuration" on the HA device page. `Config` is only
+  accepted by HA for controllable entities (number, select, switch, button, text); use
+  `Diagnostic` for sensors.
+- `setEnabledByDefault(false)` — the entity is created in HA but disabled until the user enables it.
+
 ## Debug logging
 
 Debug output goes through the ESP-IDF logging system under the `"AHA"` tag, not through any

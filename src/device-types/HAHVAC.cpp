@@ -185,9 +185,15 @@ void HAHVAC::buildSerializer()
         return;
     }
 
-    _serializer = new HASerializer(this, 28); // 28 - max properties nb
+    _serializer = new HASerializer(this, 30); // 30 - max properties nb
     _serializer->set(HANameProperty, _name);
     _serializer->set(HAObjectIdProperty, _objectId);
+    _serializer->set(HAEntityCategoryProperty, entityCategoryStr());
+    _serializer->set(
+        HAEnabledByDefaultProperty,
+        disabledByDefaultValue(),
+        HASerializer::BoolPropertyType
+    );
     _serializer->set(HASerializer::WithUniqueId);
     _serializer->set(HAIconProperty, _icon);
 

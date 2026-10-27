@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include <cstring>
 
 #include "HASerializer.h"
@@ -222,7 +223,9 @@ void HASerializer::topic(const char* topic)
 
 HASerializer::SerializerEntry* HASerializer::addEntry()
 {
-    return &_entries[_entriesNb++]; // intentional lack of protection against overflow
+    // catches a too small maxEntriesNb passed by the device type (no check in NDEBUG builds)
+    assert(_entriesNb < _maxEntriesNb);
+    return &_entries[_entriesNb++];
 }
 
 uint16_t HASerializer::calculateSize() const

@@ -40,6 +40,8 @@ const char HADeviceConfigurationUrlProperty[] = {"cu"};
 const char HANameProperty[] = {"name"};
 const char HAUniqueIdProperty[] = {"uniq_id"};
 const char HAObjectIdProperty[] = {"obj_id"};
+const char HAEntityCategoryProperty[] = {"ent_cat"};
+const char HAEnabledByDefaultProperty[] = {"en"};
 const char HADeviceProperty[] = {"dev"};
 const char HADeviceClassProperty[] = {"dev_cla"};
 const char HAStateClassProperty[] = {"stat_cla"};
@@ -121,6 +123,8 @@ const char HANotHome[] = {"not_home"};
 const char HATrigger[] = {"trigger"};
 const char HAModeBox[] = {"box"};
 const char HAModeSlider[] = {"slider"};
+const char HAEntityCategoryConfig[] = {"config"};
+const char HAEntityCategoryDiagnostic[] = {"diagnostic"};
 
 // covers
 const char HAClosedState[] = {"closed"};

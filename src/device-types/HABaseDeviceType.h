@@ -23,6 +23,17 @@ public:
         PrecisionP3
     };
 
+    enum EntityCategory : uint8_t {
+        /// Primary entity (no `entity_category` in the discovery payload).
+        EntityCategoryNone = 0,
+
+        /// Entity that changes the device's configuration.
+        EntityCategoryConfig,
+
+        /// Entity that exposes diagnostic information about the device.
+        EntityCategoryDiagnostic
+    };
+
     /**
      * Creates a new device type instance and registers it in the HAMqtt class.
      *
@@ -96,6 +107,37 @@ public:
         { return _objectId; }
 
     /**
+     * Sets the entity category used by HA to group the entity on the device page.
+     * Note: HA accepts `EntityCategoryConfig` only for entities that control the device
+     * (e.g. number, select, switch, button, text). Sensors should use `EntityCategoryDiagnostic`.
+     *
+     * @param category The entity category.
+     */
+    inline void setEntityCategory(const EntityCategory category)
+        { _entityCategory = category; }
+
+    /**
+     * Returns the entity category that was set by setEntityCategory method.
+     */
+    inline EntityCategory getEntityCategory() const
+        { return _entityCategory; }
+
+    /**
+     * Sets whether the entity should be enabled when it's first added to HA.
+     * Disabled entities still exist in HA but they need to be enabled manually by the user.
+     *
+     * @param enabled Specifies whether the entity is enabled by default.
+     */
+    inline void setEnabledByDefault(bool enabled)
+        { _enabledByDefault = enabled; }
+
+    /**
+     * Returns `true` if the entity is enabled by default (default behavior).
+     */
+    inline bool isEnabledByDefault() const
+        { return _enabledByDefault; }
+
+    /**
      * Sets availability of the device type.
      * Setting the initial availability enables availability reporting for this device type.
      * Please note that not all device types support this feature.
@@ -149,6 +191,18 @@ protected:
         const uint8_t* payload,
         const uint16_t length
     );
+
+    /**
+     * Returns dictionary string of the entity category or nullptr for EntityCategoryNone.
+     */
+    const char* entityCategoryStr() const;
+
+    /**
+     * Returns pointer to the `enabled_by_default` value or nullptr if the entity is enabled
+     * by default, so the property is published only when it differs from the HA default.
+     */
+    inline const bool* disabledByDefaultValue() const
+        { return _enabledByDefault ? nullptr : &_enabledByDefault; }
 
     /**
      * Destroys the existing serializer.
@@ -210,6 +264,12 @@ protected:
 
     /// The object ID that was set using setObjectId method. It can be nullptr.
     const char* _objectId;
+
+    /// The entity category that was set using setEntityCategory method.
+    EntityCategory _entityCategory;
+
+    /// Specifies whether the entity is enabled by default in HA.
+    bool _enabledByDefault;
 
     /// HASerializer that belongs to this device type. It can be nullptr.
     HASerializer* _serializer;

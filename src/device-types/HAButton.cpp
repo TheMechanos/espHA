@@ -20,9 +20,15 @@ void HAButton::buildSerializer()
         return;
     }
 
-    _serializer = new HASerializer(this, 9); // 9 - max properties nb
+    _serializer = new HASerializer(this, 11); // 11 - max properties nb
     _serializer->set(HANameProperty, _name);
     _serializer->set(HAObjectIdProperty, _objectId);
+    _serializer->set(HAEntityCategoryProperty, entityCategoryStr());
+    _serializer->set(
+        HAEnabledByDefaultProperty,
+        disabledByDefaultValue(),
+        HASerializer::BoolPropertyType
+    );
     _serializer->set(HASerializer::WithUniqueId);
     _serializer->set(HADeviceClassProperty, _class);
     _serializer->set(HAIconProperty, _icon);
