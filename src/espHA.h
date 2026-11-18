@@ -33,5 +33,6 @@
 #include "device-types/HASwitch.h"
 #include "device-types/HATagScanner.h"
 #include "device-types/HAText.h"
+#include "device-types/HAUpdate.h"
 #include "utils/HAUtils.h"
 #include "utils/HANumeric.h"

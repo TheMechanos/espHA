@@ -65,7 +65,7 @@ no `IPAddress` overload, since that's an Arduino type this library no longer dep
 
 `HABinarySensor`, `HAButton`, `HACamera`, `HACover`, `HADeviceTracker`, `HADeviceTrigger`,
 `HAFan`, `HAHVAC`, `HALight`, `HALock`, `HANumber`, `HAScene`, `HASelect`, `HASensor`,
-`HASensorNumber`, `HASwitch`, `HATagScanner`, `HAText`.
+`HASensorNumber`, `HASwitch`, `HATagScanner`, `HAText`, `HAUpdate`.
 
 Each type can be compiled out to save flash/RAM in `idf.py menuconfig` → Component config →
 espHA → Device types (e.g. `CONFIG_ESPHA_DISABLE_CAMERA_FEATURE=y` in `sdkconfig.defaults` if
@@ -78,6 +78,61 @@ Every entity type (all of the above except `HADeviceTrigger` and `HATagScanner`)
   accepted by HA for controllable entities (number, select, switch, button, text); use
   `Diagnostic` for sensors.
 - `setEnabledByDefault(false)` — the entity is created in HA but disabled until the user enables it.
+
+## Firmware updates (`HAUpdate`)
+
+`HAUpdate` exposes an [MQTT update entity](https://www.home-assistant.io/integrations/update.mqtt/):
+HA shows the installed and latest version, release notes and an install progress bar, and sends
+an "install" command when the user clicks *Install*. The library **doesn't** check for releases,
+download or flash anything — that's up to your application (e.g. `esp_https_ota`).
+
+- The installed version defaults to `esp_app_get_description()->version`; override it with
+  `setInstalledVersion()`.
+- `setRelease(latest, summary, url)` copies the strings and publishes the state once.
+- `setProgress(0..100)` / `setInProgress(bool)` drive the progress bar (HA 2024.11+). The state
+  is only published when a value changes.
+- The *Install* button appears only if `onInstall()` is registered. Install commands received
+  while an update is in progress are ignored.
+- **The `onInstall` callback runs in the esp-mqtt task.** Only signal your OTA task from it —
+  running the OTA inside the callback blocks the MQTT connection for the whole update.
+- `HAUpdate` has no locking: call its setters and `HAMqtt::loop()` from the same task.
+
+```cpp
+HAUpdate firmware("fw");
+static TaskHandle_t mainTask;
+
+static void onInstall(HAUpdate* sender)
+{
+    xTaskNotifyGive(mainTask); // just signal, don't run the OTA here
+}
+
+void app_main_init()
+{
+    mainTask = xTaskGetCurrentTaskHandle();
+    firmware.setName("Firmware");
+    firmware.setTitle("My Device firmware");
+    firmware.onInstall(onInstall);
+}
+
+void app_main_loop()
+{
+    mqtt.loop();
+
+    // your own release check, e.g. a manifest fetched over HTTPS
+    if (manifest_changed()) {
+        firmware.setRelease(manifest.version, manifest.summary, manifest.notes_url);
+    }
+
+    if (ulTaskNotifyTake(pdTRUE, 0)) {
+        firmware.setProgress(0);
+        // esp_https_ota_begin() ... loop over esp_https_ota_perform():
+        //     firmware.setProgress(read * 100 / total); mqtt.loop();
+        // on success: esp_https_ota_finish(); esp_restart();
+        // on failure:
+        firmware.setInProgress(false);
+    }
+}
+```
 
 ## Debug logging
 

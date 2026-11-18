@@ -18,6 +18,7 @@ const char HAComponentFan[] = {"fan"};
 const char HAComponentLight[] = {"light"};
 const char HAComponentClimate[] = {"climate"};
 const char HAComponentText[] = {"text"};
+const char HAComponentUpdate[] = {"update"};
 
 // decorators
 const char HASerializerSlash[] = {"/"};
@@ -77,6 +78,7 @@ const char HAModesProperty[] = {"modes"};
 const char HATemperatureCommandTemplateProperty[] = {"temp_cmd_tpl"};
 const char HAPayloadOnProperty[] = {"pl_on"};
 const char HAExpireAfterProperty[] = {"exp_aft"};
+const char HATitleProperty[] = {"tit"};
 
 // topics
 const char HAConfigTopic[] = {"config"};
@@ -192,6 +194,17 @@ const char HAModeCool[] = {"cool"};
 const char HAModeHeat[] = {"heat"};
 const char HAModeDry[] = {"dry"};
 const char HAModeFanOnly[] = {"fan_only"};
+
+// update (state JSON keys use full names, discovery abbreviations don't apply there)
+const char HAUpdateDeviceClassFirmware[] = {"firmware"};
+const char HAInstallCommand[] = {"install"};
+const char HAInstalledVersionKey[] = {"installed_version"};
+const char HALatestVersionKey[] = {"latest_version"};
+const char HAReleaseSummaryKey[] = {"release_summary"};
+const char HAReleaseUrlKey[] = {"release_url"};
+const char HAInProgressKey[] = {"in_progress"};
+const char HAUpdatePercentageKey[] = {"update_percentage"};
+const char HANull[] = {"null"};
 
 // other
 const char HAHexMap[] = {"0123456789abcdef"};

@@ -18,6 +18,7 @@ extern const char HAComponentFan[];
 extern const char HAComponentLight[];
 extern const char HAComponentClimate[];
 extern const char HAComponentText[];
+extern const char HAComponentUpdate[];
 
 // decorators
 extern const char HASerializerSlash[];
@@ -77,6 +78,7 @@ extern const char HAModesProperty[];
 extern const char HATemperatureCommandTemplateProperty[];
 extern const char HAPayloadOnProperty[];
 extern const char HAExpireAfterProperty[];
+extern const char HATitleProperty[];
 
 // topics
 extern const char HAConfigTopic[];
@@ -192,6 +194,17 @@ extern const char HAModeCool[];
 extern const char HAModeHeat[];
 extern const char HAModeDry[];
 extern const char HAModeFanOnly[];
+
+// update
+extern const char HAUpdateDeviceClassFirmware[];
+extern const char HAInstallCommand[];
+extern const char HAInstalledVersionKey[];
+extern const char HALatestVersionKey[];
+extern const char HAReleaseSummaryKey[];
+extern const char HAReleaseUrlKey[];
+extern const char HAInProgressKey[];
+extern const char HAUpdatePercentageKey[];
+extern const char HANull[];
 
 // other
 extern const char HAHexMap[];

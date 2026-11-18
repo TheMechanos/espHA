@@ -27,6 +27,7 @@ idf_component_register(
         "src/device-types/HASwitch.cpp"
         "src/device-types/HATagScanner.cpp"
         "src/device-types/HAText.cpp"
+        "src/device-types/HAUpdate.cpp"
 
         "src/utils/HADictionary.cpp"
         "src/utils/HANumeric.cpp"
@@ -42,5 +43,6 @@ idf_component_register(
     REQUIRES
         mqtt
         esp_timer
+        esp_app_format
         log
 )

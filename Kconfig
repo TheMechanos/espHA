@@ -80,6 +80,10 @@ menu "espHA"
             bool "Disable HAText"
             default n
 
+        config ESPHA_DISABLE_UPDATE_FEATURE
+            bool "Disable HAUpdate"
+            default n
+
     endmenu
 
 endmenu
